@@ -1,0 +1,43 @@
+<div id="app" class="container m-2 p-0">
+  <div class="row m-0 p-0">
+    <div class="btn-group-vertical col-2">
+      <button type="button" data-toggle="collapse" href="#collapseExample" v-on:click="routeTo('/A')" class="btn btn-secondary">ConfigMgmt</button>
+      <button type="button" v-on:click="routeTo('/B')" class="btn btn-secondary">Ingress</button>
+      <button type="button" v-on:click="routeTo('/B')" class="btn btn-secondary">Traffic Director</button>
+      <button type="button" v-on:click="routeTo('/A')" class="btn btn-secondary">Policy Management</button>
+      <button type="button" v-on:click="routeTo('/B')" class="btn btn-secondary">Git Repository</button>
+    </div>
+    <div class="col-1 m-0 p-0">
+    </div>
+    <div class="col-9 m-0 p-0  justify-content-end">
+      <router-view></router-view>
+    </div>
+  </div>  
+</div>
+<script type="module">
+  import compA from './components/componentA.js';
+  import compB from './components/componentB.js';
+
+  const routes = [
+    { path: '/A', component: compA },
+    { path: '/B', component: compB }
+  ]
+
+  const router = new VueRouter({
+    routes
+  })
+
+  var app = new Vue({
+    el: '#app',
+    router: router,
+    components: {
+      compA,
+      compB
+    },
+    methods: {
+      routeTo(where) {
+        this.$router.push(where);
+      }
+    }
+  })
+</script>
