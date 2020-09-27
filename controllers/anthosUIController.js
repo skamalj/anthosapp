@@ -40,6 +40,7 @@ const saveGitRepo = function(req, res) {
       .then((filepath) => updateSSHConfig(req, filepath))
       .then(() => initializeGitRepo(req))
       .then(() => syncGitRepo(`${GIT_REPO_BASEPATH}${req.body.repoName}`))
+      .then(() => saveRepoDetails(req))
       .then(() => res.status(200).send(`Repository ${req.body.repoName} saved and initialized`))
       .catch((err) => {
         console.log(err);
@@ -97,9 +98,9 @@ const initializeGitRepo = function(req) {
   const gitrepo = req.body.repo.replace(hostname, host);
 
   return new Promise(async (resolve, reject) => {
-    await git.clone(gitrepo, req.body.repoName)
+    await git.cwd(GIT_REPO_BASEPATH).clone(gitrepo, req.body.repoName)
         .then(() => {
-          if (req.body.doNotInitializeRepo) {
+          if (!req.body.doNotInitializeRepo) {
             const pwd = spawn('nomos init --force', {detached: true, shell: true, cwd: processCwd});
 
             pwd.stdout.on('data', (data) => {
@@ -133,6 +134,31 @@ const syncGitRepo = function(repoPath) {
         .push()
         .exec(() => resolve())
         .catch((err) => reject(err));
+  });
+};
+
+const saveRepoDetails = function(req) {
+  const repo = req.body.repo;
+  const identityFile = `${GIT_REPO_BASEPATH}${req.body.repoName}`;
+  const repoName = req.body.repoName;
+  let gitrepos = {repos: []};
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      fs.readFile(`${GIT_CONFIG_BASEPATH}gitrepos.config`, 'utf-8', (err, data) => {
+        if (!err) {
+          gitrepos = JSON.parse(data);
+        }
+        newRepo = {repoName: repoName, identityFile: identityFile, repo: repo};
+        gitrepos.repos.push(newRepo);
+        console.log(JSON.stringify(gitrepos));
+        fs.writeFileSync(`${GIT_CONFIG_BASEPATH}gitrepos.config`, JSON.stringify(gitrepos));
+        resolve();
+      });
+    } catch (err) {
+      console.log(`New Repo ${repoName} not persisted to config: ${JSON.stringify(gitrepos)}`);
+      reject(err);
+    }
   });
 };
 

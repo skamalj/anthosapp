@@ -1,26 +1,55 @@
 <div id="app" class="container m-2 p-0">
-  <div class="row m-0 p-0">
-    <div class="btn-group-vertical col-2">
-      <button type="button" data-toggle="collapse" href="#collapseExample" v-on:click="routeTo('/A')" class="btn btn-secondary">ConfigMgmt</button>
-      <button type="button" v-on:click="routeTo('/B')" class="btn btn-secondary">Ingress</button>
-      <button type="button" v-on:click="routeTo('/B')" class="btn btn-secondary">Traffic Director</button>
-      <button type="button" v-on:click="routeTo('/A')" class="btn btn-secondary">Policy Management</button>
-      <button type="button" v-on:click="routeTo('/B')" class="btn btn-secondary">Git Repository</button>
+  <div class="row m-0 p-0 align-top">
+    <div class="align-top col-2">
+      <div class="container m-0 p-0">
+        <button type="button" data-toggle="collapse" href="#configmgmt"
+          class="btn-block rounded-top btn-dark text-left dropdown-toggle text-info pl-1">ConfigMgmt</button>
+      </div>
+      <div class="collapse" id="configmgmt">
+        <button type="button" v-on:click="routeTo('/OnboardCluster')" 
+          class="btn-block btn-secondary pl-4 text-left rounded-bottom ">Onboard Cluster</button>
+      </div>
+      <div class="collapse" id="configmgmt">
+        <button type="button" v-on:click="routeTo('/A')"
+          class="btn-block btn-secondary pl-4 text-left rounded-bottom ">Cluster Config</button>
+      </div>
+      <div class="collapse" id="configmgmt">
+        <button type="button" v-on:click="routeTo('/B')"
+          class="btn-block btn-secondary pl-4 text-left rounded-bottom ">Namespaces</button>
+      </div>
+      <div class="collapse" id="configmgmt">
+        <button type="button" v-on:click="routeTo('/A')"
+          class="btn-block btn-secondary pl-4 text-left rounded-bottom ">K8s Objects</button>
+      </div>
+      <div class="container m-0 p-0">
+        <button type="button" data-toggle="collapse" data-target="#resources"
+          class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Resources</button>
+      </div>
+      <div class="collapse" id="resources">
+        <button type="button" v-on:click="routeTo('/B')"
+          class="btn-block btn-secondary pl-4 text-left rounded-bottom ">Repository</button>
+      </div>
+      <div class="collapse" id="resources">
+        <button type="button" v-on:click="routeTo('/A')"
+          class="btn-block btn-secondary pl-4 text-left rounded-bottom ">Cluster</button>
+      </div>
     </div>
     <div class="col-1 m-0 p-0">
     </div>
     <div class="col-9 m-0 p-0  justify-content-end">
       <router-view></router-view>
     </div>
-  </div>  
+  </div>
 </div>
 <script type="module">
   import compA from './components/componentA.js';
   import compB from './components/componentB.js';
+  import OnboardCluster from './components/OnboardCluster.js'
 
   const routes = [
     { path: '/A', component: compA },
-    { path: '/B', component: compB }
+    { path: '/B', component: compB },
+    { path: '/OnboardCluster', component: OnboardCluster }
   ]
 
   const router = new VueRouter({

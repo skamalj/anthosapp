@@ -4,5 +4,6 @@
     "KUBE_CONFIG_BASEPATH": "/home/skamalj/anthosui/.config/kube/",
     "GIT_CONFIG_BASEPATH": "/home/skamalj/anthosui/.config/git/",
     "SSH_CONFIG_FILE": "/home/skamalj/.ssh/config",
-    "TEMPLATE_PATH": "/home/skamalj/anthosui/templates/"
+    "TEMPLATE_PATH": "/home/skamalj/anthosui/templates/",
+    "OPERATOR_PATH": "/home/skamalj/anthosui/.anthos-operator/config-management-operator.yaml"
 }
