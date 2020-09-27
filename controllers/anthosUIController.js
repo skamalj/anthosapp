@@ -100,9 +100,11 @@ const initializeGitRepo = function(req) {
   return new Promise(async (resolve, reject) => {
     await git.cwd(GIT_REPO_BASEPATH).clone(gitrepo, req.body.repoName)
         .then(() => {
-          if (!req.body.doNotInitializeRepo) {
+          console.log(`Going to execute nomos: ${req.body.doNotInitializeRepo}`);
+          if (req.body.doNotInitializeRepo == 'false') {
+            console.log(`Executing nomos: ${processCwd}`);
             const pwd = spawn('nomos init --force', {detached: true, shell: true, cwd: processCwd});
-
+            console.log(`Executing nomos: ${processCwd}`);
             pwd.stdout.on('data', (data) => {
               console.log(`stdout: ${data}`);
             });
