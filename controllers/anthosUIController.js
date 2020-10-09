@@ -7,6 +7,7 @@ const config = require('config');
 const git = simpleGit('/home/skamalj/anthosui/.repos', {binary: 'git'});
 const handlebars = require('handlebars');
 
+
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
 const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
@@ -19,12 +20,14 @@ const saveAnthosConfig = function(req, res) {
     try {
       const kubetemplate = fs.readFileSync(`${TEMPLATE_PATH}kubeconfig.tpl`, 'utf8');
       const template = handlebars.compile(kubetemplate);
+
       const result = template({
         CLUSTER_ENDPOINT: req.body.clusterendpoint,
         CLUSTER_NAME: req.body.clustername,
         SERVICE_ACCOUNT: req.body.serviceaccount,
         TOKEN: req.body.token,
       });
+
       fs.writeFileSync(`${KUBE_CONFIG_BASEPATH}${req.body.clustername}`, result);
       console.log(`Config for cluster ${req.body.clustername} saved at ${KUBE_CONFIG_BASEPATH}${req.body.clustername}`);
       res.status(200).send(`Config for cluster ${req.body.clustername} saved`);
@@ -164,8 +167,56 @@ const saveRepoDetails = function(req) {
   });
 };
 
+const listGitRepos = function(req, res) {
+  try {
+    console.log('Request processing for repolist');
+    const repolist = fs.readdirSync(GIT_REPO_BASEPATH, {withFileTypes: true})
+        .filter((dirent) => dirent.isDirectory()).map((dirent) => {
+          return {name: dirent.name};
+        });
+    console.log(JSON.stringify(repolist));
+    res.status(200).send(repolist);
+  } catch (err) {
+    console.log('Repo list could not be generated');
+    res.status(500).send('Error: Repository list not available');
+  }
+};
+
+const labelCluster = function(req, res) {
+  const values = {CLUSTER_NAME: JSON.parse(req.body.clustername), LABELS: JSON.parse(req.body.labelrows)};
+  const template = `${TEMPLATE_PATH}cluster-labels.tpl`;
+  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
+  repolocation = `${repolocation}/${JSON.parse(req.body.clustername)}-labels.yaml`;
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        return res.status(200).send(`Cluster labels saved: ${result}`);
+      })
+      .catch((err) => {
+        console.log(`Cluster labels not saved: ${err}`);
+        return res.status(500).send(`Cluster labels not saved for cluster ${req.body.clustername}`);
+      });
+};
+
+const compileTemplateToRepo =  function(template, values, repolocation) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log(`${template}--${repolocation}`);
+      const tpl = fs.readFileSync(template, 'utf8');
+      const tplCompiled = handlebars.compile(tpl);
+      const result = await tplCompiled(values);
+      console.log(result);
+      fs.writeFileSync(repolocation, result);
+      return resolve(result);
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};
 
 module.exports = {
   saveAnthosConfig: saveAnthosConfig,
   saveGitRepo: saveGitRepo,
+  listGitRepos: listGitRepos,
+  labelCluster: labelCluster,
 };

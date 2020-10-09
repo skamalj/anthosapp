@@ -1,0 +1,80 @@
+{
+    "name": "root",
+    "type": "folder",
+    "path": "/home/skamalj/anthosui/.repos/test/",
+    "tree": {
+        "files": [
+            {
+                "name": "README.md",
+                "type": "file",
+                "path": "/home/skamalj/anthosui/.repos/test/README.md"
+            },
+            {
+                "name": "cluster",
+                "type": "folder",
+                "path": "/home/skamalj/anthosui/.repos/test/cluster/",
+                "tree": {
+                    "files": []
+                }
+            },
+            {
+                "name": "clusterregistry",
+                "type": "folder",
+                "path": "/home/skamalj/anthosui/.repos/test/clusterregistry/",
+                "tree": {
+                    "files": []
+                }
+            },
+            {
+                "name": "namespaces",
+                "type": "folder",
+                "path": "/home/skamalj/anthosui/.repos/test/namespaces/",
+                "tree": {
+                    "files": [
+                        {
+                            "name": "nsa",
+                            "type": "folder",
+                            "path": "/home/skamalj/anthosui/.repos/test/namespaces/nsa/",
+                            "tree": {
+                                "files": [
+                                    {
+                                        "name": "role.yaml",
+                                        "type": "file",
+                                        "path": "/home/skamalj/anthosui/.repos/test/namespaces/nsa/role.yaml"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "nsb",
+                            "type": "folder",
+                            "path": "/home/skamalj/anthosui/.repos/test/namespaces/nsb/",
+                            "tree": {
+                                "files": []
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "system",
+                "type": "folder",
+                "path": "/home/skamalj/anthosui/.repos/test/system/",
+                "tree": {
+                    "files": [
+                        {
+                            "name": "README.md",
+                            "type": "file",
+                            "path": "/home/skamalj/anthosui/.repos/test/system/README.md"
+                        },
+                        {
+                            "name": "repo.yaml",
+                            "type": "file",
+                            "path": "/home/skamalj/anthosui/.repos/test/system/repo.yaml"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

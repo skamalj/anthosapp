@@ -2,6 +2,7 @@
 
 const anthosuictrl = require('../controllers/anthosUIController.js');
 const clusterconfigctrl = require('../controllers/clusterConfigController.js');
+const repotreectrl = require('../controllers/repoController.js');
 
 module.exports = function(app) {
   app.get('/', function(req, res) {
@@ -12,6 +13,9 @@ module.exports = function(app) {
   app.post('/savekubeconfig', anthosuictrl.saveAnthosConfig);
   app.post('/saveGitRepo', anthosuictrl.saveGitRepo);
   app.post('/deployOperator', clusterconfigctrl.deployOperator);
+  app.post('/getRepoTree', repotreectrl.repoTree);
+  app.post('/getrepolist', anthosuictrl.listGitRepos);
+  app.post('/labelCluster', anthosuictrl.labelCluster);
 
   // 404
   app.use(function(req, res, next) {

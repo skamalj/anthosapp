@@ -10,6 +10,7 @@ const handlebars = require('express-handlebars').create({
 const app = express();
 app.use(fileUpload());
 app.use(bodyParser.json());
+app.use(express.static('public'));
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');

@@ -6,25 +6,22 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+        integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">    
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-sm bg-dark navbar-dark mb-2">
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark my-0 mx-0 px-2 py-0">
         <!-- Brand/logo -->
-        <a class="navbar-brand" href="#">Logo</a>
-
-        <!-- Links -->
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link 1</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link 2</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link 3</a>
-            </li>
-        </ul>
+        <a class="navbar-brand m-0 p-0" href="#">Logo</a>
+          <div class="container justify-content-end p-0 m-0">
+          <div id="selectDiv">
+            <label class="text-light" for="exampleFormControlSelect1">Select Repo</label>
+            <select v-model:value="selected"  class="form-control-sm m-1 p-1" id="exampleFormControlSelect1">
+               <option v-for="(rp, index) in repoList" :value="rp.name">\{{ rp.name }}</option>
+            </select>           
+        </div>
+        </div>
     </nav>
 
     {{{body}}}
@@ -38,6 +35,33 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
+<script>
+    var globalobj = new Vue({
+        el: '#selectDiv',
+        data: {
+            selected: '',
+            repoList: [],
+        },
+        methods: {
+            getRepoList() {    
+                vueObj = this;     
+                axios.post('/getrepolist')
+                .then(function(res) {
+                    vueObj.repoList = res.data;
+                    vueObj.selected = vueObj.repoList[0].name;
+                })
+                    .catch(function(err) {
+                    window.alert(err);
+                    });
+            },
+        },    
+        created() {
+            this.getRepoList();
+        }
+
+    })
+</script>
 </body>
+
 
 </html>
