@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+import namespaces from './namespaces.js';
+
 export default
 Vue.component('clusterObj',
     {
@@ -8,6 +10,9 @@ Vue.component('clusterObj',
           typeList: ['ClusterLabel', 'ClusterSelector', 'ClusterRole'],
           selectedType: 'ClusterLabel',
         };
+      },
+      components: {
+        namespaces,
       },
       watch: {
         selectedType: function(val) {
@@ -19,13 +24,18 @@ Vue.component('clusterObj',
       },
       template: ` \
       <div class="container justify-content-end p-0 m-0">
-        <label class="text-dark" for="clusterObjId">Select Cluster Object</label>
-        <select v-model="selectedType" class="form-control-sm m-1 p-1" id="clusterObjId">
-        <option v-for="type in typeList" :value="type">{{ type }}</option>
-        </select> 
-        <div class="col-9 m-0 p-0  justify-content-end">
-          <router-view></router-view>
-        </div>          
-    </div>`,
+        <div class="row">
+          <div class="col-5 m-0 p-0">
+            <namespaces hidenamespace=true ref="clusterdirtree"></namespaces>
+          </div>
+          <div class="col-7 m-0 p-0  justify-content-end">
+            <label class="text-dark" for="clusterObjId">Select Cluster Object</label>
+            <select v-model="selectedType" class="form-control-sm m-1 p-1" id="clusterObjId">
+              <option v-for="type in typeList" :value="type">{{ type }}</option>
+            </select>
+            <router-view></router-view>
+          </div>          
+        </div>
+      </div>`,
     },
 );

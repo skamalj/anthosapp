@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 export default
-Vue.component('componentB',
+Vue.component('repository',
     {
       data: function() {
         return {

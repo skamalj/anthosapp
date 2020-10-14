@@ -2,14 +2,14 @@
 export default
 Vue.component('NameSpaces',
     {
-      props: {treeNode: null, currentNode: null, visibletreenodes: null},
+      props: {treeNode: null, currentNode: null, hidenamespace: null},
       data: function() {
         return {
           repoName: 'test',
           parentNode: 'root',
           folderToggle: '',
           treeClass: 'container m-0 p-0 collapse show',
-          tree: {},
+          tree: {files: []},
         };
       },
       computed: {
@@ -22,6 +22,7 @@ Vue.component('NameSpaces',
           const vueObj = this;
           const formData = new FormData();
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
+          formData.append('hidenamespace', vueObj.hidenamespace);
           await axios.post('/getRepoTree',
               formData,
               {
@@ -30,12 +31,17 @@ Vue.component('NameSpaces',
                 },
               },
           ).then(function(res) {
-            vueObj.tree = {files: [res.data]};
+            // vueObj.tree = {files: [res.data]};
+            Vue.set(vueObj.tree, 'files', [res.data]);
           })
               .catch(function(err) {
                 window.alert(err);
                 return null;
               });
+        },
+        refresh() {
+          this.tree = {};
+          this.getRepoTree();
         },
       },
       async created() {
@@ -47,7 +53,6 @@ Vue.component('NameSpaces',
           this.tree = this.treeNode;
         }
         if (this.parentNode == 'root') {
-          window.alert(this.visibletreenodes);
           await this.getRepoTree();
         }
       },

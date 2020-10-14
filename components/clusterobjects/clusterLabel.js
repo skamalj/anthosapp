@@ -37,6 +37,9 @@ Vue.component('clusterLabel',
                 window.alert(err);
               });
         },
+        refreshClutserTree() {
+          this.$parent.$refs.clusterdirtree.refresh();
+        },
       },
       template: ` \
         <div class="container"> \
@@ -73,7 +76,7 @@ Vue.component('clusterLabel',
               </div> \
             </template>  
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-on:click="labelCluster()">Submit</button> \
+                <button type="button" class="btn btn-dark" v-on:click="refreshClutserTree()">Submit</button> \
             </div>  
         </div>`,
     },

@@ -7,7 +7,8 @@ const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 
 
 const repoTree = function(req, res) {
-  readDirTreeAsync(`${GIT_REPO_BASEPATH}${req.body.repoName}/`)
+  const hidenamespace = req.body.hidenamespace == 'true'? true : false;
+  readDirTreeAsync(`${GIT_REPO_BASEPATH}${req.body.repoName}/`, hidenamespace)
       .then((tree) => {
         const repotree = {
           name: 'head', type: 'folder', path: `${GIT_REPO_BASEPATH}${req.body.repoName}/`,
@@ -21,10 +22,10 @@ const repoTree = function(req, res) {
       });
 };
 
-const readDirTreeAsync = function(dirpath) {
+const readDirTreeAsync = function(dirpath, hidenamespace) {
   return new Promise( async (resolve, reject) => {
     try {
-      const tree = await readDirTree(dirpath);
+      const tree = await readDirTree(dirpath, hidenamespace);
       return resolve(tree);
     } catch (err) {
       console.log(`Unable to read directory tree at path: ${dirpath}: ${err}`);
@@ -32,19 +33,22 @@ const readDirTreeAsync = function(dirpath) {
     }
   });
 };
-const readDirTree = async function(dirpath) {
+const readDirTree = async function(dirpath, hidenamespace) {
   const tree = {files: []};
   const dirents = fs.readdirSync(dirpath, {withFileTypes: true});
   for (const d of dirents) {
-    if (d.isDirectory()) {
-      const files = await readDirTree(`${dirpath}${d.name}/`);
-      tree.files.push({
-        name: d.name, type: 'folder', path: `${dirpath}${d.name}/`, tree: files,
-      });
-    } else {
-      tree.files.push({
-        name: d.name, type: 'file', path: `${dirpath}${d.name}`,
-      });
+    if ((`${dirpath}${d.name}`.indexOf('namespace') == -1 && hidenamespace) || 
+    (`${dirpath}${d.name}`.indexOf('namespace') !== -1 && !hidenamespace) ) {
+      if (d.isDirectory()) {
+        const files = await readDirTree(`${dirpath}${d.name}/`, hidenamespace);
+        tree.files.push({
+          name: d.name, type: 'folder', path: `${dirpath}${d.name}/`, tree: files,
+        });
+      } else {
+        tree.files.push({
+          name: d.name, type: 'file', path: `${dirpath}${d.name}`,
+        });
+      }
     }
   }
   return tree;

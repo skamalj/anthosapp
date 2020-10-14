@@ -26,33 +26,33 @@
           class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Resources</button>
       </div>
       <div class="collapse" id="resources">
-        <button type="button" v-on:click="routeTo('compA')"
+        <button type="button" v-on:click="routeTo('repository')"
           class="btn-block btn-secondary pl-4 text-left border-0 ">Repository</button>
       </div>
       <div class="collapse" id="resources">
-        <button type="button" v-on:click="routeTo('compB')"
+        <button type="button" v-on:click="routeTo('cluster')"
           class="btn-block btn-secondary pl-4 text-left border-0 ">Cluster</button>
       </div>
     </div>
     <div class="col-1 m-0 p-0">
     </div>
     <div class="col-9 m-0 p-0  justify-content-end">
-      <!-- <router-view></router-view> -->
-      <namespaces visibletreenodes="xxxxx"></namespaces>
+      <router-view></router-view>
+      <!--  <namespaces hidenamespace=true></namespaces> -->
     </div>
   </div>
 </div>
 <script type="module">
-  import compa from './components/componentA.js';
-  import compB from './components/componentB.js';
+  import cluster from './components/cluster.js';
+  import repository from './components/repository.js';
   import OnboardCluster from './components/OnboardCluster.js';
   import namespaces from './components/namespaces.js';
   import ClusterObj from './components/ClusterObj.js';
   import LabelCluster from './components/clusterobjects/clusterLabel.js';
 
   const routes = [
-    { path: '/A', component: compa, name: 'compa' },
-    { path: '/B', component: compB, name: 'compB'},
+    { path: '/cluster', component: cluster, name: 'cluster' },
+    { path: '/repository', component: repository, name: 'repository'},
     { path: '/OnboardCluster', component: OnboardCluster, name: 'OnboardCluster'},
     { path: '/NameSpaces', component: namespaces, props: true, name: 'namespaces' },
     {
@@ -69,11 +69,6 @@
   var app = new Vue({
     el: '#app',
     router: router,  
-    components: {
-      compa,
-      compB,
-      namespaces
-    },
     methods: {
       routeTo(where) {
         const routeto = { name: where};

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 export default
-Vue.component('componentA',
+Vue.component('cluster',
     {
       data: function() {
         return {
