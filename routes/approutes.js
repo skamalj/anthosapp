@@ -16,6 +16,9 @@ module.exports = function(app) {
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/getrepolist', anthosuictrl.listGitRepos);
   app.post('/labelCluster', anthosuictrl.labelCluster);
+  app.post('/createClusterRole', anthosuictrl.createClusterRole);
+  app.post('/deleteFile', anthosuictrl.deleteFile);
+
 
   // 404
   app.use(function(req, res, next) {

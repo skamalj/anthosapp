@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 export default
-Vue.component('clusterLabel',
+Vue.component('clusterSelector',
     {
       data: function() {
         return {
@@ -20,7 +20,6 @@ Vue.component('clusterLabel',
           this.newlabelval = '';
         },
         labelCluster() {
-          const vueObj = this;
           this.repoName = globalobj.selected;
           const formData = new FormData();
           Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
@@ -33,13 +32,12 @@ Vue.component('clusterLabel',
               },
           ).then(function() {
             window.alert('SUCCESS!!');
-            vueObj.refreshClusterTree();
           })
               .catch(function(err) {
                 window.alert(err);
               });
         },
-        refreshClusterTree() {
+        refreshClutserTree() {
           this.$parent.$refs.clusterdirtree.refresh();
         },
       },
@@ -78,7 +76,7 @@ Vue.component('clusterLabel',
               </div> \
             </template>  
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-on:click="labelCluster()">Submit</button> \
+                <button type="button" class="btn btn-dark" v-on:click="refreshClutserTree()">Submit</button> \
             </div>  
         </div>`,
     },

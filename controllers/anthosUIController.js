@@ -14,6 +14,9 @@ const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
 const SSH_CONFIG_FILE = config.get('SSH_CONFIG_FILE');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
 
+handlebars.registerHelper('json', function(obj) {
+  return JSON.stringify(obj);
+});
 
 const saveAnthosConfig = function(req, res) {
   if (req.body.credoption === 'token') {
@@ -198,7 +201,23 @@ const labelCluster = function(req, res) {
       });
 };
 
-const compileTemplateToRepo =  function(template, values, repolocation) {
+const createClusterRole = function(req, res) {
+  const values = {ROLE_NAME: JSON.parse(req.body.clusterrole), RULES: JSON.parse(req.body.rules)};
+  const template = `${TEMPLATE_PATH}clusterrole.tpl`;
+  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/cluster`;
+  repolocation = `${repolocation}/${JSON.parse(req.body.clusterrole)}.yaml`;
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        return res.status(200).send(`Cluster role saved: ${result}`);
+      })
+      .catch((err) => {
+        console.log(`Clusterrole not saved: ${err}`);
+        return res.status(500).send(`Clusterrole not saved for role ${req.body.clusterrole}`);
+      });
+};
+
+const compileTemplateToRepo = function(template, values, repolocation) {
   return new Promise(async (resolve, reject) => {
     try {
       console.log(`${template}--${repolocation}`);
@@ -214,9 +233,24 @@ const compileTemplateToRepo =  function(template, values, repolocation) {
   });
 };
 
+const deleteFile = function(req, res) {
+  try {
+    fs.unlinkSync(req.body.filename)
+    const msg = `Deleted file ${JSON.stringify(req.body.filename)}`;
+    console.log(msg);
+    res.status(200).send(msg);
+  } catch (err) {
+    const msg = `File ${JSON.stringify(req.body.filename)} could not be deleted`;
+    console.log(msg);
+    res.status(500).send(msg);
+  }
+};
+
 module.exports = {
   saveAnthosConfig: saveAnthosConfig,
   saveGitRepo: saveGitRepo,
   listGitRepos: listGitRepos,
   labelCluster: labelCluster,
+  createClusterRole: createClusterRole,
+  deleteFile: deleteFile,
 };

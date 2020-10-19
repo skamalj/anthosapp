@@ -19,7 +19,7 @@
             <label class="text-light" for="exampleFormControlSelect1">Select Repo</label>
             <select v-model:value="selected"  class="form-control-sm m-1 p-1" id="exampleFormControlSelect1">
                <option v-for="(rp, index) in repoList" :value="rp.name">\{{ rp.name }}</option>
-            </select>           
+            </select> 
         </div>
         </div>
     </nav>
@@ -41,6 +41,7 @@
         data: {
             selected: '',
             repoList: [],
+            log: 'No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. No logs this is one long text. ',
         },
         methods: {
             getRepoList() {    
@@ -55,10 +56,14 @@
                     });
             },
         },    
+        watch: {
+            log: function(newval, oldval) {
+                window.alert(newval);
+            }
+        },
         created() {
             this.getRepoList();
         }
-
     })
 </script>
 </body>

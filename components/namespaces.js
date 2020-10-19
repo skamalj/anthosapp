@@ -9,7 +9,7 @@ Vue.component('NameSpaces',
           parentNode: 'root',
           folderToggle: '',
           treeClass: 'container m-0 p-0 collapse show',
-          tree: {files: []},
+          files: [{name: 'head', type: 'file', path: 'test'}],
         };
       },
       computed: {
@@ -23,7 +23,7 @@ Vue.component('NameSpaces',
           const formData = new FormData();
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
           formData.append('hidenamespace', vueObj.hidenamespace);
-          await axios.post('/getRepoTree',
+          return await axios.post('/getRepoTree',
               formData,
               {
                 headers: {
@@ -31,26 +31,41 @@ Vue.component('NameSpaces',
                 },
               },
           ).then(function(res) {
-            // vueObj.tree = {files: [res.data]};
-            Vue.set(vueObj.tree, 'files', [res.data]);
+            vueObj.$set(vueObj.files, 0, res.data);
           })
               .catch(function(err) {
                 window.alert(err);
-                return null;
               });
         },
-        refresh() {
-          this.tree = {};
-          this.getRepoTree();
+        async refresh() {
+          if (this.parentNode != 'root') {
+            this.$parent.refresh();
+          } else {
+            this.files = [];
+            this.getRepoTree();
+          }
+        },
+        async deletefile(fname) {
+          const vueObj = this;
+          return await axios.post('/deleteFile', {filename: fname})
+              .then(function(res) {
+                vueObj.refresh();
+                globalobj.log = res.data;
+              })
+              .catch((err) => {
+                window.alert(err);
+              });
         },
       },
       async created() {
         if (this.currentNode) {
           this.parentNode = this.currentNode;
-          this.treeClass = 'container m-0 p-0 collapse';
+          if (this.parentNode != 'head') {
+            this.treeClass = 'container m-0 p-0 collapse';
+          }
         }
         if (this.treeNode) {
-          this.tree = this.treeNode;
+          this.files = this.treeNode;
         }
         if (this.parentNode == 'root') {
           await this.getRepoTree();
@@ -59,11 +74,14 @@ Vue.component('NameSpaces',
       template: ` \
         <div :class="treeClass" :id="parentNode"> 
           <ul class="list-group">
-            <div v-for="f in tree.files">
+            <div v-for="f in files">
               <template v-if="f.type === 'file'">
                 <li class="list-group-item list-group-item py-0 border-0" :key="f.name">
                   <i class="fa fa-file" aria-hidden="true"></i>
                   {{ f.name }}
+                  <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="deletefile(f.path)">
+                  <i class="fas fa-minus-circle" aria-hidden="true"></i>
+                  </button>
                 </li>  
               </template>
               <template v-if="f.type === 'folder'">
@@ -72,7 +90,7 @@ Vue.component('NameSpaces',
                   {{ f.name }}
                 </li>  
                 <li class="list-group-item list-group-item py-0 border-0">
-                  <NameSpaces v-bind:treeNode="f.tree" :currentNode="f.name"></NameSpaces>
+                  <NameSpaces v-bind:treeNode="f.tree.files" :currentNode="f.name"></NameSpaces>
                 </li>  
               </template>
             </div>    
