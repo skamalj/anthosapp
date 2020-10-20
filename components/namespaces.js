@@ -56,6 +56,9 @@ Vue.component('NameSpaces',
                 window.alert(err);
               });
         },
+        contextevent(nscontext) {
+          this.$emit('nscontext', nscontext);
+        },
       },
       async created() {
         if (this.currentNode) {
@@ -85,12 +88,17 @@ Vue.component('NameSpaces',
                 </li>  
               </template>
               <template v-if="f.type === 'folder'">
+              <div class="row m-0 p-0">
                 <li class="list-group-item py-0 border-0"  data-toggle="collapse" :data-target="'#'+f.name" :key="f.name">
                   <i :class="folderClass" aria-hidden="true"></i>
                   {{ f.name }}
-                </li>  
+                </li> 
+                <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="contextevent(f.path)">
+                <i class="fas fa-arrow-alt-circle-right" style="color: Dodgerblue;" aria-hidden="true"></i>
+                </button> 
+                </div>
                 <li class="list-group-item list-group-item py-0 border-0">
-                  <NameSpaces v-bind:treeNode="f.tree.files" :currentNode="f.name"></NameSpaces>
+                  <NameSpaces v-bind:treeNode="f.tree.files" :currentNode="f.name" v-on="$listeners"></NameSpaces>
                 </li>  
               </template>
             </div>    

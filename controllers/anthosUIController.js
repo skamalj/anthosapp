@@ -235,7 +235,7 @@ const compileTemplateToRepo = function(template, values, repolocation) {
 
 const deleteFile = function(req, res) {
   try {
-    fs.unlinkSync(req.body.filename)
+    fs.unlinkSync(req.body.filename);
     const msg = `Deleted file ${JSON.stringify(req.body.filename)}`;
     console.log(msg);
     res.status(200).send(msg);
@@ -246,6 +246,11 @@ const deleteFile = function(req, res) {
   }
 };
 
+const createNamespace = function(req, res) {
+  console.log(req.body);
+  res.status(200).send('OK');
+};
+
 module.exports = {
   saveAnthosConfig: saveAnthosConfig,
   saveGitRepo: saveGitRepo,
@@ -253,4 +258,5 @@ module.exports = {
   labelCluster: labelCluster,
   createClusterRole: createClusterRole,
   deleteFile: deleteFile,
+  createNamespace: createNamespace,
 };

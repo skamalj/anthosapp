@@ -18,6 +18,7 @@ module.exports = function(app) {
   app.post('/labelCluster', anthosuictrl.labelCluster);
   app.post('/createClusterRole', anthosuictrl.createClusterRole);
   app.post('/deleteFile', anthosuictrl.deleteFile);
+  app.post('/createNamespace', anthosuictrl.createNamespace);
 
 
   // 404

@@ -14,7 +14,7 @@
           class="btn-block btn-secondary pl-4 text-left  border-0">Cluster Config</button>
       </div>
       <div class="collapse" id="configmgmt">
-        <button type="button" v-on:click="routeTo('namespaces')"
+        <button type="button" v-on:click="routeTo('NamespaceObj')"
           class="btn-block btn-secondary pl-4 text-left border-0 ">Namespaces</button>
       </div>
       <div class="collapse" id="configmgmt">
@@ -34,9 +34,9 @@
           class="btn-block btn-secondary pl-4 text-left border-0 ">Cluster</button>
       </div>
     </div>
-    <div class="col-1 m-0 p-0">
-    </div>
-    <div class="col-9 m-0 p-0  justify-content-end">
+    <!-- <div class="col-1 m-0 p-0">
+    </div> -->
+    <div class="col-9 ml-3 p-0  justify-content-end">
       <router-view></router-view>
       <!--  <namespaces hidenamespace=true></namespaces> -->
     </div>
@@ -47,7 +47,9 @@
   import cluster from './components/cluster.js';
   import repository from './components/repository.js';
   import OnboardCluster from './components/OnboardCluster.js';
-  import namespaces from './components/namespaces.js';
+  import NamespaceObj from './components/NamespaceObj.js';
+  import namespace from './components/namespaceobjects/namespace.js';
+
   import ClusterObj from './components/ClusterObj.js';
   import LabelCluster from './components/clusterobjects/clusterLabel.js';
   import ClusterRole from './components/clusterobjects/clusterRole.js'; 
@@ -57,7 +59,11 @@
     { path: '/cluster', component: cluster, name: 'cluster' },
     { path: '/repository', component: repository, name: 'repository'},
     { path: '/OnboardCluster', component: OnboardCluster, name: 'OnboardCluster'},
-    { path: '/NameSpaces', component: namespaces, props: true, name: 'namespaces' },
+    {
+      path: '/NamespaceObj', component: NamespaceObj, name: 'NamespaceObj', children: [
+      { path: 'namespace', component: namespace },
+      ]
+    },
     {
       path: '/ClusterObj', component: ClusterObj, name: 'ClusterObj', children: [
       { path: 'ClusterLabel', component: LabelCluster },
