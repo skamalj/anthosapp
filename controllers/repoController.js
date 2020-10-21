@@ -37,7 +37,7 @@ const readDirTree = async function(dirpath, hidenamespace) {
   const tree = {files: []};
   const dirents = fs.readdirSync(dirpath, {withFileTypes: true});
   for (const d of dirents) {
-    if ((`${dirpath}${d.name}`.indexOf('namespace') == -1 && hidenamespace) || 
+    if ((`${dirpath}${d.name}`.indexOf('namespace') == -1 && hidenamespace) ||
     (`${dirpath}${d.name}`.indexOf('namespace') !== -1 && !hidenamespace) ) {
       if (d.isDirectory()) {
         const files = await readDirTree(`${dirpath}${d.name}/`, hidenamespace);

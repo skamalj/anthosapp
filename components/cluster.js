@@ -11,7 +11,11 @@ Vue.component('cluster',
           credoption: 'token',
           clustername: '',
           clusterendpoint: '',
+          clusterlist: [],
         };
+      },
+      created: function() {
+        this.getClusterList();
       },
       methods: {
         handleFileUpload() {
@@ -30,6 +34,15 @@ Vue.component('cluster',
               },
           ).then(function() {
             window.alert('SUCCESS!!');
+          })
+              .catch(function(err) {
+                window.alert(err);
+              });
+        },
+        getClusterList() {
+          const vueObj = this;
+          axios.post('/getClusterlist').then(function(res) {
+            vueObj.clusterlist = res.data;
           })
               .catch(function(err) {
                 window.alert(err);
@@ -66,8 +79,25 @@ Vue.component('cluster',
             </div> \
             <div class="row m-1 justify-content-end"> \
                 <button type="button" class="btn btn-dark" v-on:click="submitFile()">Submit</button> \
-            </div>    
-
+            </div>   
+            <div class="container m-3 mt-5">  
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Endpoint</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(cluster, index) in clusterlist" v-if="cluster">
+                  <th scope="row">{{ index }}</th>
+                  <td>{{ cluster.name }}</td>
+                  <td>{{ cluster.endpoint }}</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>  
         </div>`,
     },
 );

@@ -27,7 +27,8 @@
     "fs": "0.0.1-security",
     "handlebars": "^4.7.6",
     "simple-git": "^2.20.1",
-    "vuejs-tree": "^2.0.0-5"
+    "vuejs-tree": "^2.0.0-5",
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
     "eslint": "^7.9.0",

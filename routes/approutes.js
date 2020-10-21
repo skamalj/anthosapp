@@ -13,12 +13,15 @@ module.exports = function(app) {
   app.post('/savekubeconfig', anthosuictrl.saveAnthosConfig);
   app.post('/saveGitRepo', anthosuictrl.saveGitRepo);
   app.post('/deployOperator', clusterconfigctrl.deployOperator);
+  app.post('/getClusterList', clusterconfigctrl.getClusters);
+
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/getrepolist', anthosuictrl.listGitRepos);
   app.post('/labelCluster', anthosuictrl.labelCluster);
   app.post('/createClusterRole', anthosuictrl.createClusterRole);
   app.post('/deleteFile', anthosuictrl.deleteFile);
   app.post('/createNamespace', anthosuictrl.createNamespace);
+  app.post('/showFileContent', anthosuictrl.showFileContent);
 
 
   // 404

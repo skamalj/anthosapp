@@ -3,6 +3,7 @@ const config = require('config');
 const {spawn} = require('child_process');
 const fs = require('fs');
 const handlebars = require('handlebars');
+const yaml = require('yaml');
 
 const OPERATOR_PATH = config.get('OPERATOR_PATH');
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
@@ -59,7 +60,30 @@ const runKubectl = function(cmd) {
   });
 };
 
-
+const getClusters = async function(req, res) {
+  let clusters;
+  try {
+    const dirents = fs.readdirSync(KUBE_CONFIG_BASEPATH, {withFileTypes: true});
+    clusters = await dirents.filter((dir) => dir.isFile).map((file) => {
+      const yamlcontent = fs.readFileSync(`${KUBE_CONFIG_BASEPATH}${file.name}`, 'utf8');
+      const doc = yaml.parseDocument(yamlcontent);
+      console.log(JSON.stringify(doc.contents));
+      if (JSON.parse(JSON.stringify(doc.contents)).clusters) {
+        const cluster = JSON.parse(JSON.stringify(doc.contents)).clusters[0];
+        console.log(cluster);
+        return {endpoint: cluster.cluster.server, name: cluster.name};
+      } else {
+        return null;
+      }
+    });
+    console.log(`Cluster list: ${clusters}`);
+    return res.status(200).send(clusters);
+  } catch (err) {
+    console.log(`Cannot create cluster list ${err}`);
+    return res.status(500).send('Cannot create cluster list');
+  }
+};
 module.exports = {
   deployOperator: deployOperator,
+  getClusters: getClusters,
 };

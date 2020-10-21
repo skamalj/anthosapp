@@ -10,6 +10,7 @@ Vue.component('NameSpaces',
           folderToggle: '',
           treeClass: 'container m-0 p-0 collapse show',
           files: [{name: 'head', type: 'file', path: 'test'}],
+          filecontent: 'Loading...',
         };
       },
       computed: {
@@ -59,6 +60,9 @@ Vue.component('NameSpaces',
         contextevent(nscontext) {
           this.$emit('nscontext', nscontext);
         },
+        filecontentevent(fpath) {
+          this.$emit('filecontentevent', fpath);
+        },
       },
       async created() {
         if (this.currentNode) {
@@ -81,7 +85,7 @@ Vue.component('NameSpaces',
               <template v-if="f.type === 'file'">
                 <li class="list-group-item list-group-item py-0 border-0" :key="f.name">
                   <i class="fa fa-file" aria-hidden="true"></i>
-                  {{ f.name }}
+                  <span v-on:click="filecontentevent(f.path)">{{ f.name }}</span>
                   <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="deletefile(f.path)">
                   <i class="fas fa-minus-circle" aria-hidden="true"></i>
                   </button>

@@ -201,6 +201,22 @@ const labelCluster = function(req, res) {
       });
 };
 
+const createNamespace = function(req, res) {
+  const values = {NAMESPACE: JSON.parse(req.body.namespace), LABELS: JSON.parse(req.body.labelrows),
+    CLUSTER_SELECTOR: JSON.parse(req.body.clusterselector)};
+  const template = `${TEMPLATE_PATH}namespace.tpl`;
+  let repolocation = JSON.parse(req.body.nscontext);
+  repolocation = `${repolocation}${JSON.parse(req.body.namespace)}.yaml`;
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        return res.status(200).send(`Namespace saved: ${result}`);
+      })
+      .catch((err) => {
+        console.log(`Namespace not saved: ${err}`);
+        return res.status(500).send(`Namespace not saved for ${req.body.namespace}`);
+      });
+};
+
 const createClusterRole = function(req, res) {
   const values = {ROLE_NAME: JSON.parse(req.body.clusterrole), RULES: JSON.parse(req.body.rules)};
   const template = `${TEMPLATE_PATH}clusterrole.tpl`;
@@ -246,9 +262,16 @@ const deleteFile = function(req, res) {
   }
 };
 
-const createNamespace = function(req, res) {
-  console.log(req.body);
-  res.status(200).send('OK');
+const showFileContent = function(req, res) {
+  try {
+    const filecontent = fs.readFileSync(req.body.filepath, 'utf8');
+    console.log(filecontent);
+    res.status(200).send(filecontent);
+  } catch (err) {
+    const msg = `File content for ${req.body.fpath} not read: ${err}`;
+    console.log(msg);
+    res.status(500).send(`File content for ${req.body.fpath} not read`);
+  }
 };
 
 module.exports = {
@@ -259,4 +282,5 @@ module.exports = {
   createClusterRole: createClusterRole,
   deleteFile: deleteFile,
   createNamespace: createNamespace,
+  showFileContent: showFileContent,
 };
