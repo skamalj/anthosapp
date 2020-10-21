@@ -14,10 +14,12 @@ const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
 const SSH_CONFIG_FILE = config.get('SSH_CONFIG_FILE');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
 
+// Convert request objects to JSON strings for creating template results
 handlebars.registerHelper('json', function(obj) {
   return JSON.stringify(obj);
 });
 
+// Create kubeconfig file. One file per cluster is created and clustername is filename.
 const saveAnthosConfig = function(req, res) {
   if (req.body.credoption === 'token') {
     try {
@@ -41,6 +43,9 @@ const saveAnthosConfig = function(req, res) {
   }
 };
 
+//  This functions saves the GIT configuration as well as updates SSH config for the repository
+//  Function also initializes the repo for Anthos using 'nomos' command
+//  and pushes the intial changes to  remote
 const saveGitRepo = function(req, res) {
   saveFile(req, req.body.repoName, GIT_CONFIG_BASEPATH)
       .then((filepath) => updateSSHConfig(req, filepath))
@@ -49,25 +54,26 @@ const saveGitRepo = function(req, res) {
       .then(() => saveRepoDetails(req))
       .then(() => res.status(200).send(`Repository ${req.body.repoName} saved and initialized`))
       .catch((err) => {
-        console.log(err);
+        console.log(`Repository could not created or synced ${err}`);
         return res.status(500).send('Repository could not created or synced');
       });
 };
 
+// Function saves the file uploaded from frontend. Example of file uploads are SSH key for repository
 const saveFile = function(req, filename, location) {
   return new Promise(async (resolve, reject) => {
     if (!req.files || Object.keys(req.files).length === 0) {
-      console.log('No files were uploaded');
+      console.log('Nothing to save: No files were uploaded');
       reject(new Error('No file was uploaded.'));
     }
     // Get the key defined in frontend for file upload, this has no relation to filename
     fileKey = (Object.keys(req.files))[0];
     const tempFile = req.files[fileKey];
-    // Use the mv() method to place the file somewhere on your server
+    // Use the mv() method to place the file on your server
     await tempFile.mv(`${location}${filename}`, function(err) {
       if (err) {
-        console.log(err);
-        reject(err);
+        console.log(`Unable to save file ${filename}: ${err}`);
+        reject(new Error(`Unable to save file ${filename}: ${err}`));
       }
       console.log(`Uploaded file was saved to ${location}${filename}`);
       resolve(`${location}${filename}`);
@@ -75,6 +81,13 @@ const saveFile = function(req, filename, location) {
   });
 };
 
+// Creates and entry in .ssh/config in following format to enable git operations via SSH
+// Below "test-7" is <repoName> in the application and is used for anthos configuration
+/* Host test7-source.developers.google.com
+    	HostName source.developers.google.com
+      IdentityFile /home/skamalj/anthosui/.config/git/test7
+      StrictHostKeyChecking no
+*/
 const updateSSHConfig = function(req, filepath) {
   const re = new RegExp('@([^@]*):');
   const hostname = req.body.repo.match(re)[1];
@@ -85,8 +98,8 @@ const updateSSHConfig = function(req, filepath) {
   return new Promise((resolve, reject) => {
     fs.appendFile(SSH_CONFIG_FILE, sshConfig, (err) => {
       if (err) {
-        console.log(`Could not update SSH Config ${err}`);
-        reject(err);
+        console.log(`Could not update SSH Config: ${err}`);
+        reject(new Error(`Could not update SSH Config: ${err}`));
       } else {
         console.log(`SSH Config updated for repo ${req.body.repoName}`);
         resolve();
@@ -95,6 +108,8 @@ const updateSSHConfig = function(req, filepath) {
   });
 };
 
+// Clones the repository to local data directory and initializes it if empty/requested
+// This function does not push the code, that is written separately.
 const initializeGitRepo = function(req) {
   const processCwd = `${GIT_REPO_BASEPATH}${req.body.repoName}`;
 
@@ -108,17 +123,13 @@ const initializeGitRepo = function(req) {
         .then(() => {
           console.log(`Going to execute nomos: ${req.body.doNotInitializeRepo}`);
           if (req.body.doNotInitializeRepo == 'false') {
-            console.log(`Executing nomos: ${processCwd}`);
             const pwd = spawn('nomos init --force', {detached: true, shell: true, cwd: processCwd});
-            console.log(`Executing nomos: ${processCwd}`);
             pwd.stdout.on('data', (data) => {
-              console.log(`stdout: ${data}`);
+              console.log(`nomos stdout: ${data}`);
             });
-
             pwd.stderr.on('data', (data) => {
-              console.error(`stderr: ${data}`);
+              console.error(`nomos stderr: ${data}`);
             });
-
             pwd.on('close', (code) => {
               console.log(`Nomos initalization exited with code ${code}`);
               if (code != 0) {
@@ -134,6 +145,7 @@ const initializeGitRepo = function(req) {
   });
 };
 
+// Commit and push the changes
 const syncGitRepo = function(repoPath) {
   return new Promise((resolve, reject) => {
     git.cwd(repoPath)
@@ -145,6 +157,9 @@ const syncGitRepo = function(repoPath) {
   });
 };
 
+// Function saves/stores details of all git repos configured in the system.
+// This is one place from where all details for repositories can be queried,
+// otherwiese we will need to parse repositrory folders and their remotes for information.
 const saveRepoDetails = function(req) {
   const repo = req.body.repo;
   const identityFile = `${GIT_REPO_BASEPATH}${req.body.repoName}`;
@@ -159,7 +174,6 @@ const saveRepoDetails = function(req) {
         }
         newRepo = {repoName: repoName, identityFile: identityFile, repo: repo};
         gitrepos.repos.push(newRepo);
-        console.log(JSON.stringify(gitrepos));
         fs.writeFileSync(`${GIT_CONFIG_BASEPATH}gitrepos.config`, JSON.stringify(gitrepos));
         resolve();
       });
@@ -170,78 +184,34 @@ const saveRepoDetails = function(req) {
   });
 };
 
+// List git repos. Function needs to be update to get information from
+// gitconfig file craeted at initialization
 const listGitRepos = function(req, res) {
   try {
-    console.log('Request processing for repolist');
     const repolist = fs.readdirSync(GIT_REPO_BASEPATH, {withFileTypes: true})
         .filter((dirent) => dirent.isDirectory()).map((dirent) => {
           return {name: dirent.name};
         });
-    console.log(JSON.stringify(repolist));
+    console.log(`Generated repo list: ${JSON.stringify(repolist)}`);
     res.status(200).send(repolist);
   } catch (err) {
-    console.log('Repo list could not be generated');
+    console.log(`Repo list could not be generated: ${err}`);
     res.status(500).send('Error: Repository list not available');
   }
 };
 
-const labelCluster = function(req, res) {
-  const values = {CLUSTER_NAME: JSON.parse(req.body.clustername), LABELS: JSON.parse(req.body.labelrows)};
-  const template = `${TEMPLATE_PATH}cluster-labels.tpl`;
-  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
-  repolocation = `${repolocation}/${JSON.parse(req.body.clustername)}-labels.yaml`;
 
-  compileTemplateToRepo(template, values, repolocation)
-      .then((result) => {
-        return res.status(200).send(`Cluster labels saved: ${result}`);
-      })
-      .catch((err) => {
-        console.log(`Cluster labels not saved: ${err}`);
-        return res.status(500).send(`Cluster labels not saved for cluster ${req.body.clustername}`);
-      });
-};
-
-const createNamespace = function(req, res) {
-  const values = {NAMESPACE: JSON.parse(req.body.namespace), LABELS: JSON.parse(req.body.labelrows),
-    CLUSTER_SELECTOR: JSON.parse(req.body.clusterselector)};
-  const template = `${TEMPLATE_PATH}namespace.tpl`;
-  let repolocation = JSON.parse(req.body.nscontext);
-  repolocation = `${repolocation}${JSON.parse(req.body.namespace)}.yaml`;
-  compileTemplateToRepo(template, values, repolocation)
-      .then((result) => {
-        return res.status(200).send(`Namespace saved: ${result}`);
-      })
-      .catch((err) => {
-        console.log(`Namespace not saved: ${err}`);
-        return res.status(500).send(`Namespace not saved for ${req.body.namespace}`);
-      });
-};
-
-const createClusterRole = function(req, res) {
-  const values = {ROLE_NAME: JSON.parse(req.body.clusterrole), RULES: JSON.parse(req.body.rules)};
-  const template = `${TEMPLATE_PATH}clusterrole.tpl`;
-  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/cluster`;
-  repolocation = `${repolocation}/${JSON.parse(req.body.clusterrole)}.yaml`;
-
-  compileTemplateToRepo(template, values, repolocation)
-      .then((result) => {
-        return res.status(200).send(`Cluster role saved: ${result}`);
-      })
-      .catch((err) => {
-        console.log(`Clusterrole not saved: ${err}`);
-        return res.status(500).send(`Clusterrole not saved for role ${req.body.clusterrole}`);
-      });
-};
-
+// Main handlebars function to create YAML manifests using values
+// send from frontend and handlebars templates
 const compileTemplateToRepo = function(template, values, repolocation) {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(`${template}--${repolocation}`);
+      console.log(`Building manifest using template  ${template} with values ${JSON.stringify(values)}`);
       const tpl = fs.readFileSync(template, 'utf8');
       const tplCompiled = handlebars.compile(tpl);
       const result = await tplCompiled(values);
-      console.log(result);
       fs.writeFileSync(repolocation, result);
+      console.log(`Template result\n============\n${result}\n============\nsaved to ${repolocation}`);
       return resolve(result);
     } catch (err) {
       return reject(err);
@@ -249,6 +219,7 @@ const compileTemplateToRepo = function(template, values, repolocation) {
   });
 };
 
+// Delete file from selected repository
 const deleteFile = function(req, res) {
   try {
     fs.unlinkSync(req.body.filename);
@@ -262,6 +233,7 @@ const deleteFile = function(req, res) {
   }
 };
 
+// Reads the file and sends the content to frontend for display
 const showFileContent = function(req, res) {
   try {
     const filecontent = fs.readFileSync(req.body.filepath, 'utf8');
@@ -278,9 +250,7 @@ module.exports = {
   saveAnthosConfig: saveAnthosConfig,
   saveGitRepo: saveGitRepo,
   listGitRepos: listGitRepos,
-  labelCluster: labelCluster,
-  createClusterRole: createClusterRole,
   deleteFile: deleteFile,
-  createNamespace: createNamespace,
   showFileContent: showFileContent,
+  compileTemplateToRepo: compileTemplateToRepo,
 };

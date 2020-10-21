@@ -10,6 +10,7 @@ Vue.component('namespace',
           labelrows: [],
           repoName: '',
           clusterselector: '',
+          abstractnamespace: '',
         };
       },
       props: ['nscontext'],
@@ -37,6 +38,10 @@ Vue.component('namespace',
           ).then(function() {
             window.alert('SUCCESS!!');
             vueObj.refreshClusterTree();
+            vueObj.namespace = '';
+            vueObj.labelrows = [];
+            vueObj.abstractnamespace = '';
+            vueObj.clusterselector = '';
           })
               .catch(function(err) {
                 window.alert(err);
@@ -48,13 +53,19 @@ Vue.component('namespace',
       },
       template: ` \
         <div class="container"> \
+            <div class="form-check m-3">
+                <input class="form-check-input" type="checkbox" v-model="abstractnamespace" id="abstractNamespaceCheck">
+                <label class="form-check-label" for="abstractNamespaceCheck">
+                    Abstract Namespace
+                </label>
+            </div>
             <div  class="container m-3"> \
                 <input  class="form-control" type="text" placeholder="Namespace Name"  v-model:value="namespace"> \
             </div> \ 
-            <div  class="container m-3"> \
+            <div  v-if="!abstractnamespace" class="container m-3"> \
                 <input  class="form-control" type="text" placeholder="Cluster Selector" v-model:value="clusterselector"> \
             </div> \
-            <div  class="row  d-flex m-3 p-0"> \
+            <div  v-if="!abstractnamespace" class="row  d-flex m-3 p-0"> \
                 <div class="col-5">
                   <input  class="form-control" type="text" placeholder="Label Key" v-model="newlabelkey"> \
                 </div>
