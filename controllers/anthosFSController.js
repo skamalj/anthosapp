@@ -6,7 +6,8 @@ const fs = require('fs');
 const config = require('config');
 const git = simpleGit('/home/skamalj/anthosui/.repos', {binary: 'git'});
 const handlebars = require('handlebars');
-
+const util = require('util');
+const readFilePromise = util.promisify(fs.readFile);
 
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
@@ -187,19 +188,19 @@ const saveRepoDetails = function(req) {
 // List git repos. Function needs to be update to get information from
 // gitconfig file craeted at initialization
 const listGitRepos = function(req, res) {
-  try {
-    const repolist = fs.readdirSync(GIT_REPO_BASEPATH, {withFileTypes: true})
-        .filter((dirent) => dirent.isDirectory()).map((dirent) => {
-          return {name: dirent.name};
+  readFilePromise(`${GIT_CONFIG_BASEPATH}gitrepos.config`, 'utf-8')
+      .then((data) => {
+        const repolist = (JSON.parse(data))['repos'].map((repo) => {
+          return {'name': repo.repoName, 'repouri': repo.repo};
         });
-    console.log(`Generated repo list: ${JSON.stringify(repolist)}`);
-    res.status(200).send(repolist);
-  } catch (err) {
-    console.log(`Repo list could not be generated: ${err}`);
-    res.status(500).send('Error: Repository list not available');
-  }
+        console.log(`Repolist generated: ${JSON.stringify(repolist)}`);
+        return res.status(200).send(repolist);
+      })
+      .catch((err) => {
+        console.log(`Repolist could not be generated: ${err}`);
+        return res.status(500).send('Repolist could not be generated');
+      });
 };
-
 
 // Main handlebars function to create YAML manifests using values
 // send from frontend and handlebars templates

@@ -5,6 +5,7 @@ const config = require('config');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
 const anthosfs = require('./anthosFSController');
 
+
 // Create namespace object in requested repository. It creates a directory with NS name
 // and then places a namespace YAML in that directory. If nammespace is Abstract, then
 // only directory is created.
@@ -40,6 +41,19 @@ const createNamespace = function(req, res) {
       });
 };
 
+const listEmptyNS = function(dirpath, result) {
+  const dirents = fs.readdirSync(dirpath, {withFileTypes: true});
+  dirents.filter((dirent) => dirent.isDirectory() && dirent.name != '.git')
+      .forEach( (d) => {
+        if (fs.readdirSync(`${dirpath}${d.name}/`, {withFileTypes: true}).length == 0) {
+          result.push(`${dirpath}${d.name}/`);
+        }
+        listEmptyNS(`${dirpath}${d.name}/`, result);
+      });
+  return result;
+};
+
 module.exports = {
   createNamespace: createNamespace,
+  listEmptyNS: listEmptyNS,
 };

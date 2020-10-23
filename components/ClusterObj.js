@@ -26,7 +26,7 @@ Vue.component('clusterObj',
       <div class="container justify-content-end p-0 m-0">
         <div class="row">
           <div class="col-5 m-0 p-0">
-            <namespaces hidenamespace=true ref="clusterdirtree"></namespaces>
+            <namespaces hidenamespace=true :repoName="globalobj.selected" ref="clusterdirtree"></namespaces>
           </div>
           <div class="col-7 m-0 p-0  justify-content-end">
             <label class="text-dark" for="clusterObjId">Select Cluster Object</label>

@@ -2,10 +2,9 @@
 export default
 Vue.component('NameSpaces',
     {
-      props: {treeNode: null, currentNode: null, hidenamespace: null},
+      props: {treeNode: null, currentNode: null, hidenamespace: null, repoName: null},
       data: function() {
         return {
-          repoName: 'test',
           parentNode: 'root',
           folderToggle: '',
           treeClass: 'container m-0 p-0 collapse show',
@@ -22,6 +21,7 @@ Vue.component('NameSpaces',
         async getRepoTree() {
           const vueObj = this;
           const formData = new FormData();
+          formData.append('repoName', vueObj.repoName);
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
           formData.append('hidenamespace', vueObj.hidenamespace);
           return await axios.post('/getRepoTree',
@@ -62,6 +62,11 @@ Vue.component('NameSpaces',
         },
         filecontentevent(fpath) {
           this.$emit('filecontentevent', fpath);
+        },
+      },
+      watch: {
+        repoName: function(val) {
+          this.refresh();
         },
       },
       async created() {

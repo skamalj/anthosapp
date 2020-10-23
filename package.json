@@ -27,6 +27,7 @@
     "fs": "0.0.1-security",
     "handlebars": "^4.7.6",
     "simple-git": "^2.20.1",
+    "util": "^0.12.3",
     "vuejs-tree": "^2.0.0-5",
     "yaml": "^1.10.0"
   },

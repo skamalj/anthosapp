@@ -91,7 +91,7 @@ Vue.component('cluster',
               </thead>
               <tbody>
                 <tr v-for="(cluster, index) in clusterlist" v-if="cluster">
-                  <th scope="row">{{ index }}</th>
+                  <th scope="row">{{ index +1 }}</th>
                   <td>{{ cluster.name }}</td>
                   <td>{{ cluster.endpoint }}</td>
                 </tr>

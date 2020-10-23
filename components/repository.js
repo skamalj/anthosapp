@@ -9,7 +9,11 @@ Vue.component('repository',
           repoCredential: '',
           filename: 'Upload private key for Git-Repo',
           doNotInitializeRepo: '',
+          repolist: [],
         };
+      },
+      created: function() {
+        this.getRepoList();
       },
       methods: {
         handleFileUpload() {
@@ -28,6 +32,15 @@ Vue.component('repository',
               },
           ).then(function() {
             window.alert('SUCCESS!!');
+          })
+              .catch(function(err) {
+                window.alert(err);
+              });
+        },
+        getRepoList() {
+          const vueObj = this;
+          axios.post('/getRepolist').then(function(res) {
+            vueObj.repolist = res.data;
           })
               .catch(function(err) {
                 window.alert(err);
@@ -58,7 +71,25 @@ Vue.component('repository',
             </div>    
             <div class="row pb-3 m-0 justify-content-end"> \
                 <button type="button" class="btn btn-dark" v-on:click="saveRepo()">Save</button> \
-            </div>    
+            </div>  
+            <div class="container m-3 mt-5">  
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">RepoURI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(repo, index) in repolist" v-if="repo">
+                  <th scope="row">{{ index + 1}}</th>
+                  <td>{{ repo.name }}</td>
+                  <td>{{ repo.repouri }}</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>   
         </div>`,
     },
 );

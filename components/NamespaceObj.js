@@ -54,7 +54,7 @@ Vue.component('NamespaceObj',
       </div>        
         <div class="row">
           <div class="col-6 m-0 p-0">
-            <namespaces hidenamespace=false ref="namespacetree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></namespaces>
+            <namespaces hidenamespace=false :repoName="globalobj.selected" ref="namespacetree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></namespaces>
           </div>
           <div class="col-6 m-0 p-0  justify-content-end">
             <label class="text-dark" for="namespaceObjId">Select Namespace Object</label>
