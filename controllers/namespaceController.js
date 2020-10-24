@@ -3,6 +3,7 @@
 const fs = require('fs');
 const config = require('config');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
+const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const anthosfs = require('./anthosFSController');
 
 
@@ -41,19 +42,43 @@ const createNamespace = function(req, res) {
       });
 };
 
-const listEmptyNS = function(dirpath, result) {
-  const dirents = fs.readdirSync(dirpath, {withFileTypes: true});
-  dirents.filter((dirent) => dirent.isDirectory() && dirent.name != '.git')
-      .forEach( (d) => {
-        if (fs.readdirSync(`${dirpath}${d.name}/`, {withFileTypes: true}).length == 0) {
-          result.push(`${dirpath}${d.name}/`);
-        }
-        listEmptyNS(`${dirpath}${d.name}/`, result);
+// Create and send list of empty abstract namespaces.
+// These can be reviewed and deleted by the user
+const listEmptyNS = function(req, res) {
+  const reponame = JSON.parse(req.body.repoName);
+  const repodir = `${GIT_REPO_BASEPATH}${reponame}/`;
+  createEmptyNSList(repodir, [])
+      .then((result) => {
+        console.log(`Created list of empty abstract namespaces: ${JSON.stringify(result)}`);
+        res.status(200).send(result);
+      })
+      .catch((err) => {
+        console.log(`Could not create list of empty abstract namespaces: ${err}`);
+        res.status(200).send('Error while creating list of empty abstract namespaces');
       });
-  return result;
+};
+
+// Helper function to create list of empty abstract NS's
+const createEmptyNSList = async function(dirpath, result) {
+  return new Promise((resolve, reject) => {
+    try {
+      const dirents = fs.readdirSync(dirpath, {withFileTypes: true});
+      dirents.filter((dirent) => dirent.isDirectory() && dirent.name != '.git')
+          .forEach( (d) => {
+            if (fs.readdirSync(`${dirpath}${d.name}/`, {withFileTypes: true}).length == 0) {
+              result.push({'name': d.name, 'nspath': `${dirpath}${d.name}/`});
+            }
+            createEmptyNSList(`${dirpath}${d.name}/`, result);
+          });
+      return resolve(result);
+    } catch (err) {
+      return reject(err);
+    };
+  });
 };
 
 module.exports = {
   createNamespace: createNamespace,
   listEmptyNS: listEmptyNS,
+  createEmptyNSList, createEmptyNSList,
 };

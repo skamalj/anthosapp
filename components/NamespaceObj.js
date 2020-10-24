@@ -61,7 +61,7 @@ Vue.component('NamespaceObj',
             <select v-model="selectedType" class="form-control-sm m-1 p-1" id="namespaceObjId">
               <option v-for="type in typeList" :value="type">{{ type }}</option>
             </select>
-            <router-view :nscontext="nsselectedcontext"></router-view>
+            <router-view :nscontext="nsselectedcontext" :repoName="globalobj.selected"></router-view>
           </div>          
         </div>
       </div>`,

@@ -8,12 +8,20 @@ Vue.component('namespace',
           newlabelkey: '',
           newlabelval: '',
           labelrows: [],
-          repoName: '',
           clusterselector: '',
           abstractnamespace: '',
+          emptyabstractns: [],
         };
       },
-      props: ['nscontext'],
+      props: ['nscontext', 'repoName'],
+      watch: {
+        repoName: function(val) {
+          this.listEmptyNS();
+        },
+      },
+      created() {
+        this.listEmptyNS();
+      },
       methods: {
         addNewLabel: function() {
           const newlabel = {};
@@ -24,9 +32,9 @@ Vue.component('namespace',
         },
         createNamespace() {
           const vueObj = this;
-          this.repoName = globalobj.selected;
           const formData = new FormData();
           formData.append('nscontext', JSON.stringify(vueObj.nscontext));
+          formData.append('repoName', JSON.stringify(vueObj.repoName));
           Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
           axios.post('/createNamespace',
               formData,
@@ -35,8 +43,8 @@ Vue.component('namespace',
                   'Content-Type': 'multipart/form-data',
                 },
               },
-          ).then(function() {
-            window.alert('SUCCESS!!');
+          ).then(function(response) {
+            globalobj.log = response.data;
             vueObj.refreshClusterTree();
             vueObj.namespace = '';
             vueObj.labelrows = [];
@@ -47,8 +55,47 @@ Vue.component('namespace',
                 window.alert(err);
               });
         },
+        listEmptyNS() {
+          const vueObj = this;
+          const formData = new FormData();
+          formData.append('repoName', JSON.stringify(vueObj.repoName));
+          Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
+          axios.post('/listEmptyNS',
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              },
+          ).then((result) => {
+            vueObj.emptyabstractns = result.data;
+          })
+              .catch(function(err) {
+                window.alert(err);
+              });
+        },
+        deleteDir(dirpath) {
+          const vueObj = this;
+          const formData = new FormData();
+          formData.append('dirname', dirpath);
+          axios.post('/deleteDir',
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              },
+          ).then((result) => {
+            globalobj.log = result.data;
+            vueObj.refreshClusterTree();
+          })
+              .catch(function(err) {
+                window.alert(err);
+              });
+        },
         refreshClusterTree() {
           this.$parent.$refs.namespacetree.refresh();
+          this.listEmptyNS();
         },
       },
       template: ` \
@@ -99,6 +146,29 @@ Vue.component('namespace',
                 :disabled="!(nscontext && namespace)">Submit</button> \
             </div>  
             <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5>
+            <div class="container m-0 mt-5">  
+            <table class="table">
+            <caption style="caption-side:top">List of empty namespaces</caption>
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Path</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(ns, index) in emptyabstractns">
+                  <td>
+                    <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="deleteDir(ns.nspath)">
+                      <i class="fas fa-minus-circle" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                  <td>{{ ns.name }}</td>
+                  <td>{{ ns.nspath }}</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>  
         </div>`,
     },
 );

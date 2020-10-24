@@ -234,6 +234,20 @@ const deleteFile = function(req, res) {
   }
 };
 
+// Delete directory from selected repository
+const deleteDir = function(req, res) {
+  try {
+    fs.rmdirSync(req.body.dirname);
+    const msg = `Deleted directory ${JSON.stringify(req.body.dirname)}`;
+    console.log(msg);
+    res.status(200).send(msg);
+  } catch (err) {
+    const msg = `Directory/Namespace ${JSON.stringify(req.body.dirname)} could not be deleted`;
+    console.log(msg);
+    res.status(500).send(msg);
+  }
+};
+
 // Reads the file and sends the content to frontend for display
 const showFileContent = function(req, res) {
   try {
@@ -254,4 +268,5 @@ module.exports = {
   deleteFile: deleteFile,
   showFileContent: showFileContent,
   compileTemplateToRepo: compileTemplateToRepo,
+  deleteDir: deleteDir,
 };

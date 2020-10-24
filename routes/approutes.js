@@ -16,6 +16,7 @@ module.exports = function(app) {
   app.post('/getrepolist', anthosfsctrl.listGitRepos);
   app.post('/deleteFile', anthosfsctrl.deleteFile);
   app.post('/showFileContent', anthosfsctrl.showFileContent);
+  app.post('/deleteDir', anthosfsctrl.deleteDir);
 
   app.post('/labelCluster', clusterconfigctrl.labelCluster);
   app.post('/deployOperator', clusterconfigctrl.deployOperator);
@@ -24,6 +25,7 @@ module.exports = function(app) {
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);
+  app.post('/listEmptyNS', namespacectrl.listEmptyNS);
 
 
   // 404
