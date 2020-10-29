@@ -38,7 +38,7 @@ Vue.component('clusterRole',
                 },
               },
           ).then(function(resp) {
-            globalobj.log = globalobj.log + '\n' + resp.data;
+            globalobj.appendLog(resp.data);
             vueObj.refreshClusterTree();
             vueObj.clusterrole = '';
             vueObj.rules = [];

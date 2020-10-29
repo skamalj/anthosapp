@@ -86,7 +86,7 @@ Vue.component('namespace',
                 },
               },
           ).then((result) => {
-            globalobj.log = result.data;
+            globalobj.appendLog(result.data);
             vueObj.refreshClusterTree();
           })
               .catch(function(err) {

@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+// This component gets reponame from global object "globalobj" which is being created in
+// main.handlebars in views directory
 export default
 Vue.component('clusterLabel',
     {
@@ -21,6 +23,7 @@ Vue.component('clusterLabel',
         },
         labelCluster() {
           const vueObj = this;
+          // Set reponame from global vue object and send to bankend post request
           this.repoName = globalobj.selected;
           const formData = new FormData();
           Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
@@ -32,7 +35,7 @@ Vue.component('clusterLabel',
                 },
               },
           ).then(function(resp) {
-            globalobj.log = globalobj.log + '\n' + resp.data;
+            globalobj.appendLog(resp.data);
             vueObj.refreshClusterTree();
             vueObj.clustername = '';
             vueObj.labelrows = [];
@@ -41,6 +44,7 @@ Vue.component('clusterLabel',
                 window.alert(err);
               });
         },
+        // This code uses ref object to find a parent and call refresh on that directory tree
         refreshClusterTree() {
           this.$parent.$refs.clusterdirtree.refresh();
         },

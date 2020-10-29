@@ -68,8 +68,8 @@
       <router-view></router-view>
       <!--  <namespaces hidenamespace=true></namespaces> -->
     </div>
-    <div class="mt-5 fixed-bottom bg-dark overflow-auto" style="height: 50px;">
-      <pre class="text-left text-success bg-dark m-0 p-0">\{{ globalobj.log }}</pre>
+    <div class="mt-10 fixed-bottom bg-dark overflow-auto" style="height: 75px;">
+      <pre class="text-left text-success bg-dark m-0 p-0">\{{ globalobj.logstr }}</pre>
     </div>
   </div>
 </div>
@@ -78,7 +78,8 @@
   import repository from './components/repository.js';
   import OnboardCluster from './components/OnboardCluster.js';
   import NamespaceObj from './components/NamespaceObj.js';
-  import namespace from './components/namespaceobjects/namespace.js';
+  import Namespace from './components/namespaceobjects/namespace.js';
+  import NSObjectYaml from './components/namespaceobjects/nsobjectyaml.js';
 
   import ClusterObj from './components/ClusterObj.js';
   import LabelCluster from './components/clusterobjects/clusterLabel.js';
@@ -92,8 +93,9 @@
     { path: '/OnboardCluster', component: OnboardCluster, name: 'OnboardCluster'},
     {
       path: '/NamespaceObj', component: NamespaceObj, name: 'NamespaceObj', children: [
-      { path: '', redirect: 'namespace' },
-      { path: 'namespace', component: namespace },
+      { path: '', redirect: 'Namespace' },
+      { path: 'Namespace', component: Namespace, name: 'Namespace' },
+      { path: 'ObjectYaml', component: NSObjectYaml, name: 'ObjectYaml' },
       ]
     },
     {

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import namespaces from './namespaces.js';
+import dirtree from './dirtree.js';
 
 export default
 Vue.component('clusterObj',
@@ -13,7 +13,7 @@ Vue.component('clusterObj',
         };
       },
       components: {
-        namespaces,
+        dirtree,
       },
       methods: {
         showfilemodal: function(fpath) {
@@ -50,7 +50,7 @@ Vue.component('clusterObj',
       </div>
         <div class="row">
           <div class="col-6 m-0 p-0">
-            <namespaces hidenamespace=true :repoName="globalobj.selected" @filecontentevent="showfilemodal" ref="clusterdirtree"></namespaces>
+            <dirtree hidenamespace=true :repoName="globalobj.selected" @filecontentevent="showfilemodal" ref="clusterdirtree"></dirtree>
           </div>
           <div class="col-6 m-0 p-0  justify-content-end">
             <label class="text-dark" for="clusterObjId">Select Cluster Object</label>

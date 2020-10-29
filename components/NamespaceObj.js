@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import namespaces from './namespaces.js';
+import dirtree from './dirtree.js';
 
 export default
 Vue.component('NamespaceObj',
@@ -7,18 +7,18 @@ Vue.component('NamespaceObj',
       data: function() {
         return {
           repoName: '',
-          typeList: ['namespace', 'ClusterSelector', 'ClusterRole'],
-          selectedType: 'namespace',
+          typeList: ['Namespace', 'ObjectYaml'],
+          selectedType: 'Namespace',
           nsselectedcontext: '',
           filecontent: '',
         };
       },
       components: {
-        namespaces,
+        dirtree,
       },
       watch: {
         selectedType: function(val) {
-          this.$router.push({name: `/NamespaceObj/${val}`, params: {nscontext: this.nsselectedcontext}});
+          this.$router.push({name: `${val}`, params: {nscontext: this.nsselectedcontext}});
         },
       },
       methods: {
@@ -54,7 +54,7 @@ Vue.component('NamespaceObj',
       </div>        
         <div class="row">
           <div class="col-6 m-0 p-0">
-            <namespaces hidenamespace=false :repoName="globalobj.selected" ref="namespacetree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></namespaces>
+            <dirtree hidenamespace=false :repoName="globalobj.selected" ref="namespacetree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
           </div>
           <div class="col-6 m-0 p-0  justify-content-end">
             <label class="text-dark" for="namespaceObjId">Select Namespace Object</label>

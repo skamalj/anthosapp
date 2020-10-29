@@ -33,7 +33,7 @@ Vue.component('Selector',
                 },
               },
           ).then(function(resp) {
-            globalobj.log = globalobj.log + '\n' + resp.data;
+            globalobj.appendLog(resp.data);
             vueObj.refreshClutserTree();
             vueObj.clusterselectorname = '';
             vueObj.labelrows = [];

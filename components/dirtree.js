@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 export default
-Vue.component('NameSpaces',
+Vue.component('dirtree',
     {
       props: {treeNode: null, currentNode: null, hidenamespace: null, repoName: null},
       data: function() {
@@ -51,7 +51,7 @@ Vue.component('NameSpaces',
           return await axios.post('/deleteFile', {filename: fname})
               .then(function(res) {
                 vueObj.refresh();
-                globalobj.log = res.data;
+                globalobj.appendLog(res.data);
               })
               .catch((err) => {
                 window.alert(err);
@@ -110,7 +110,7 @@ Vue.component('NameSpaces',
                   </button>
                 </div>
                 <li class="list-group-item list-group-item py-0 border-0">
-                  <NameSpaces v-bind:treeNode="f.tree.files" :currentNode="f.name" v-on="$listeners"></NameSpaces>
+                  <dirtree v-bind:treeNode="f.tree.files" :currentNode="f.name" v-on="$listeners"></dirtree>
                 </li>  
               </template>
             </div>    

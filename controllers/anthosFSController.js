@@ -77,7 +77,7 @@ const saveFile = function(req, filename, location) {
         reject(new Error(`Unable to save file ${filename}: ${err}`));
       }
       console.log(`Uploaded file was saved to ${location}${filename}`);
-      resolve(`${location}${filename}`);
+      resolve(`Uploaded file was saved to ${location}${filename}`);
     });
   });
 };
@@ -266,6 +266,7 @@ module.exports = {
   saveGitRepo: saveGitRepo,
   listGitRepos: listGitRepos,
   deleteFile: deleteFile,
+  saveFile: saveFile,
   showFileContent: showFileContent,
   compileTemplateToRepo: compileTemplateToRepo,
   deleteDir: deleteDir,

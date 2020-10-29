@@ -41,7 +41,12 @@
         data: {
             selected: '',
             repoList: [],
-            log: 'No logs at this time.',
+            log: [""],
+        },
+       computed: {
+            logstr: function() {
+                return this.log.join("\n");
+            }
         },
         methods: {
             getRepoList() {    
@@ -55,6 +60,10 @@
                     window.alert(err);
                     });
             },
+            appendLog(logstring) {
+                this.log.unshift(logstring);
+                this.log = this.log.slice(0,20);
+            }
         },    
         created() {
             this.getRepoList();
