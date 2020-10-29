@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // Defines routes for the application linked to controllers/callback functions
 
 const anthosfsctrl = require('../controllers/anthosFSController.js');
@@ -11,7 +12,7 @@ module.exports = function(app) {
   });
 
 
-  app.post('/savekubeconfig', anthosfsctrl.saveAnthosConfig);
+  app.post('/saveAnthosConfig', anthosfsctrl.saveAnthosConfig);
   app.post('/saveGitRepo', anthosfsctrl.saveGitRepo);
   app.post('/getrepolist', anthosfsctrl.listGitRepos);
   app.post('/deleteFile', anthosfsctrl.deleteFile);
@@ -19,9 +20,11 @@ module.exports = function(app) {
   app.post('/deleteDir', anthosfsctrl.deleteDir);
 
   app.post('/labelCluster', clusterconfigctrl.labelCluster);
+  app.post('/createSelector', clusterconfigctrl.createSelector);
   app.post('/deployOperator', clusterconfigctrl.deployOperator);
   app.post('/getClusterList', clusterconfigctrl.getClusters);
   app.post('/createClusterRole', clusterconfigctrl.createClusterRole);
+  app.post('/uploadClusterObjectYaml', clusterconfigctrl.uploadClusterObjectYaml);
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);

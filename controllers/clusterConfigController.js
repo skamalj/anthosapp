@@ -9,6 +9,7 @@ const {compileTemplateToRepo} = require('./anthosFSController');
 const OPERATOR_PATH = config.get('OPERATOR_PATH');
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
 const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
+const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
 
 // This creates git secret, details of which it gets from save gitconfig file,
@@ -111,9 +112,44 @@ const labelCluster = function(req, res) {
       });
 };
 
+// Create cluster selector
+const createSelector = function(req, res) {
+  let repolocation;
+
+  // Set values for templates
+  const values = {SELECTOR_NAME: JSON.parse(req.body.selectorname),
+    KIND: JSON.parse(req.body.selectortype),
+    APIVERSION: JSON.parse(req.body.selectortype) == 'ClusterSelector' ?
+      'clusterregistry.k8s.io/v1alpha1' : 'configmanagement.gke.io/v1',
+    LABELS: JSON.parse(req.body.labelrows)};
+
+  // Get the template
+  const template = `${TEMPLATE_PATH}anthos-selector.tpl`;
+
+  // Get replocation, this will be different based on which selector is being created
+  if (JSON.parse(req.body.selectortype) == 'ClusterSelector') {
+    repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
+    repolocation = `${repolocation}/${JSON.parse(req.body.selectorname)}-clusterselector.yaml`;
+  } else {
+    repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/cluster`;
+    repolocation = `${repolocation}/${JSON.parse(req.body.selectorname)}-nsselector.yaml`;
+  }
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Cluster selector saved: ${result}`);
+        return res.status(200).send(`Cluster selector saved: ${result}`);
+      })
+      .catch((err) => {
+        console.log(`Cluster selector not saved: ${err}`);
+        return res.status(500).send(`Cluster selector  ${req.body.clusterselectorname} not saved`);
+      });
+};
+
 // Create manifest to create clusterrole
 const createClusterRole = function(req, res) {
-  const values = {ROLE_NAME: JSON.parse(req.body.clusterrole), RULES: JSON.parse(req.body.rules)};
+  const values = {ROLE_NAME: JSON.parse(req.body.clusterrole), CLUSTER_SELECTOR: JSON.parse(req.body.clusterselector),
+    RULES: JSON.parse(req.body.rules)};
   const template = `${TEMPLATE_PATH}clusterrole.tpl`;
   let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/cluster`;
   repolocation = `${repolocation}/${JSON.parse(req.body.clusterrole)}.yaml`;
@@ -135,4 +171,5 @@ module.exports = {
   getClusters: getClusters,
   labelCluster: labelCluster,
   createClusterRole: createClusterRole,
+  createSelector: createSelector,
 };

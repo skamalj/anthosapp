@@ -151,7 +151,7 @@ const syncGitRepo = function(repoPath) {
   return new Promise((resolve, reject) => {
     git.cwd(repoPath)
         .add('./*')
-        .commit('Dummy Message')
+        .commit('Push by Anthos Accelerator')
         .push()
         .exec(() => resolve())
         .catch((err) => reject(err));

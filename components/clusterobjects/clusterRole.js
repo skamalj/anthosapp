@@ -5,6 +5,7 @@ Vue.component('clusterRole',
       data: function() {
         return {
           clusterrole: '',
+          clusterselector: '',
           apigroups: '',
           resources: '',
           rules: [],
@@ -36,8 +37,8 @@ Vue.component('clusterRole',
                   'Content-Type': 'multipart/form-data',
                 },
               },
-          ).then(function() {
-            window.alert('SUCCESS!!');
+          ).then(function(resp) {
+            globalobj.log = globalobj.log + '\n' + resp.data;
             vueObj.refreshClusterTree();
             vueObj.clusterrole = '';
             vueObj.rules = [];
@@ -52,6 +53,9 @@ Vue.component('clusterRole',
       },
       template: ` \
         <div class="container"> \
+            <div  class="container m-3"> \
+              <input  class="form-control" type="text" placeholder="Cluster Selector" v-model:value="clusterselector"> \
+            </div> \
             <div  class="container m-3"> \
                 <input  class="form-control" type="text" placeholder="Clusterrole Name" v-model:value="clusterrole"> \
             </div> \ 

@@ -25,7 +25,7 @@ Vue.component('cluster',
         submitFile() {
           const formData = new FormData();
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
-          axios.post('/savekubeconfig',
+          axios.post('/saveAnthosConfig',
               formData,
               {
                 headers: {

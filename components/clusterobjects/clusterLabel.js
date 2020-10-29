@@ -31,9 +31,11 @@ Vue.component('clusterLabel',
                   'Content-Type': 'multipart/form-data',
                 },
               },
-          ).then(function() {
-            window.alert('SUCCESS!!');
+          ).then(function(resp) {
+            globalobj.log = globalobj.log + '\n' + resp.data;
             vueObj.refreshClusterTree();
+            vueObj.clustername = '';
+            vueObj.labelrows = [];
           })
               .catch(function(err) {
                 window.alert(err);

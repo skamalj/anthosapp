@@ -148,7 +148,11 @@ Vue.component('namespace',
             <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5>
             <div class="container m-0 mt-5">  
             <table class="table">
-            <caption style="caption-side:top">List of empty namespaces</caption>
+            <caption style="caption-side:top">List of empty namespaces
+            <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="listEmptyNS()">
+            <i class="fa fa-sync-alt" style="color: Dodgerblue;" aria-hidden="true"></i>
+            </button
+            </caption>
               <thead>
                 <tr>
                   <th scope="col"></th>

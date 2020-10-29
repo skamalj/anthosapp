@@ -18,7 +18,7 @@ Vue.component('NamespaceObj',
       },
       watch: {
         selectedType: function(val) {
-          this.$router.push({name: `/NamespaceObj/${val}`, params: {nscontext: nsselectedcontext}});
+          this.$router.push({name: `/NamespaceObj/${val}`, params: {nscontext: this.nsselectedcontext}});
         },
       },
       methods: {

@@ -1,6 +1,6 @@
 <div id="app" class="container m-2 p-0">
   <div class="row m-0 p-0 align-top">
-    <div class="align-top col-2">
+    <div class="align-top col-2 p-0">
       <div class="container m-0 p-0">
         <button type="button" data-toggle="collapse" href="#configmgmt"
           class="btn-block rounded-top btn-dark text-left dropdown-toggle text-info pl-1">ConfigMgmt</button>
@@ -22,6 +22,34 @@
           class="btn-block btn-secondary pl-4 text-left bord border-0">K8s Objects</button>
       </div>
       <div class="container m-0 p-0">
+        <button type="button" data-toggle="collapse" data-target="#policyagent"
+          class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Policy Agent</button>
+      </div>
+      <div class="collapse" id="policyagent">
+        <button type="button" v-on:click="routeTo('repository')"
+          class="btn-block btn-secondary pl-4 text-left border-0 ">Template</button>
+      </div>
+      <div class="collapse" id="policyagent">
+        <button type="button" v-on:click="routeTo('cluster')"
+          class="btn-block btn-secondary pl-4 text-left border-0 ">Policy</button>
+      </div>
+      <div class="container m-0 p-0">
+        <button type="button" v-on:click="routeTo('cluster')"
+          class="btn-block btn-dark text-info pl-1 text-left">Network Policy</button>
+      </div>
+      <div class="container m-0 p-0">
+        <button type="button" data-toggle="collapse" data-target="#tools"
+          class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Tools</button>
+      </div>
+      <div class="collapse" id="tools">
+        <button type="button" v-on:click="routeTo('repository')"
+          class="btn-block btn-secondary pl-4 text-left border-0 ">Observe</button>
+      </div>
+      <div class="collapse" id="tools">
+        <button type="button" v-on:click="routeTo('cluster')"
+          class="btn-block btn-secondary pl-4 text-left border-0 ">Secure</button>
+      </div>
+      <div class="container m-0 p-0">
         <button type="button" data-toggle="collapse" data-target="#resources"
           class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Resources</button>
       </div>
@@ -36,11 +64,13 @@
     </div>
     <!-- <div class="col-1 m-0 p-0">
     </div> -->
-    <div class="col-9 ml-3 p-0  justify-content-end">
+    <div class="col-9 ml-3 pb-5  justify-content-end">
       <router-view></router-view>
       <!--  <namespaces hidenamespace=true></namespaces> -->
     </div>
-    <div class="fixed-bottom text-left text-success bg-dark">\{{ globalobj.log }}</div>
+    <div class="mt-5 fixed-bottom bg-dark overflow-auto" style="height: 50px;">
+      <pre class="text-left text-success bg-dark m-0 p-0">\{{ globalobj.log }}</pre>
+    </div>
   </div>
 </div>
 <script type="module">
@@ -53,7 +83,8 @@
   import ClusterObj from './components/ClusterObj.js';
   import LabelCluster from './components/clusterobjects/clusterLabel.js';
   import ClusterRole from './components/clusterobjects/clusterRole.js'; 
-  import ClusterSelector from './components/clusterobjects/clusterSelector.js'; 
+  import Selector from './components/clusterobjects/Selector.js'; 
+  import ClusterObjectYaml from './components/clusterobjects/clusterobjectyaml.js';
 
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
@@ -61,14 +92,17 @@
     { path: '/OnboardCluster', component: OnboardCluster, name: 'OnboardCluster'},
     {
       path: '/NamespaceObj', component: NamespaceObj, name: 'NamespaceObj', children: [
+      { path: '', redirect: 'namespace' },
       { path: 'namespace', component: namespace },
       ]
     },
     {
       path: '/ClusterObj', component: ClusterObj, name: 'ClusterObj', children: [
+      { path: '', redirect: 'ClusterLabel'},
       { path: 'ClusterLabel', component: LabelCluster },
       { path: 'ClusterRole', component: ClusterRole },
-      { path: 'ClusterSelector', component: ClusterSelector },
+      { path: 'Selector', component: Selector },
+      { path: 'ClusterObjectManifest', component: ClusterObjectYaml },
       ]
     },
   ]
