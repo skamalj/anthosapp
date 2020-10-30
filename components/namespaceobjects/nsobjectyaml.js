@@ -6,20 +6,18 @@ Vue.component('NSObjectYaml',
         return {
           file: null,
           filename: 'Uplaod object yaml',
-          repoName: '',
         };
       },
       props: ['nscontext'],
       methods: {
         handleFileUpload() {
           this.file = this.$refs.objectyaml.files[0];
-          this.filename = this.file.name;
+          this.filename = this.file ? this.file.name : 'Uplaod object yaml';
         },
         submitFile() {
-          this.repoName = globalobj.selected;
           const formData = new FormData();
-          formData.append('nscontext', JSON.stringify(vueObj.nscontext));
-          Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
+          formData.append('nscontext', this.nscontext);
+          Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
           axios.post('/uploadObjectYaml',
               formData,
               {
@@ -27,7 +25,7 @@ Vue.component('NSObjectYaml',
                   'Content-Type': 'multipart/form-data',
                 },
               },
-          ).then(function() {
+          ).then(function(resp) {
             globalobj.appendLog(resp.data);
           })
               .catch(function(err) {

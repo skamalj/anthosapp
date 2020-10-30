@@ -9,6 +9,7 @@ const handlebars = require('handlebars');
 const util = require('util');
 const readFilePromise = util.promisify(fs.readFile);
 
+// Configurations are set in /config app directory in default.json
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
 const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
@@ -74,7 +75,7 @@ const saveFile = function(req, filename, location) {
     await tempFile.mv(`${location}${filename}`, function(err) {
       if (err) {
         console.log(`Unable to save file ${filename}: ${err}`);
-        reject(new Error(`Unable to save file ${filename}: ${err}`));
+        reject(new Error(`Unable to save file ${filename}`));
       }
       console.log(`Uploaded file was saved to ${location}${filename}`);
       resolve(`Uploaded file was saved to ${location}${filename}`);
@@ -99,8 +100,8 @@ const updateSSHConfig = function(req, filepath) {
   return new Promise((resolve, reject) => {
     fs.appendFile(SSH_CONFIG_FILE, sshConfig, (err) => {
       if (err) {
-        console.log(`Could not update SSH Config: ${err}`);
-        reject(new Error(`Could not update SSH Config: ${err}`));
+        console.log(`Could not update SSH Config for repo ${req.body.repoName}: ${err}`);
+        reject(new Error(`Could not update SSH Config`));
       } else {
         console.log(`SSH Config updated for repo ${req.body.repoName}`);
         resolve();
@@ -243,7 +244,7 @@ const deleteDir = function(req, res) {
     res.status(200).send(msg);
   } catch (err) {
     const msg = `Directory/Namespace ${JSON.stringify(req.body.dirname)} could not be deleted`;
-    console.log(msg);
+    console.log(`${msg}: ${err}`);
     res.status(500).send(msg);
   }
 };
@@ -252,7 +253,7 @@ const deleteDir = function(req, res) {
 const showFileContent = function(req, res) {
   try {
     const filecontent = fs.readFileSync(req.body.filepath, 'utf8');
-    console.log(filecontent);
+    console.log(`File content sent for ${req.body.filepath}`);
     res.status(200).send(filecontent);
   } catch (err) {
     const msg = `File content for ${req.body.fpath} not read: ${err}`;

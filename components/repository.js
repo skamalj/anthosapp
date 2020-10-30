@@ -30,8 +30,8 @@ Vue.component('repository',
                   'Content-Type': 'multipart/form-data',
                 },
               },
-          ).then(function() {
-            window.alert('SUCCESS!!');
+          ).then(function(resp) {
+            globalobj.appendLog(resp.data);
           })
               .catch(function(err) {
                 window.alert(err);

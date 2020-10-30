@@ -18,7 +18,7 @@ Vue.component('NamespaceObj',
       },
       watch: {
         selectedType: function(val) {
-          this.$router.push({name: `${val}`, params: {nscontext: this.nsselectedcontext}});
+          this.$router.push({name: `${val}`});
         },
       },
       methods: {
@@ -29,7 +29,7 @@ Vue.component('NamespaceObj',
           const vueObj = this;
           return axios.post('/showFileContent', {filepath: fpath})
               .then(function(res) {
-                globalobj.log = res.data;
+                globalobj.appendLog(res.data);
                 vueObj.filecontent = res.data;
                 $('#filecontentmodal').modal('toggle');
               })

@@ -44,7 +44,7 @@ Vue.component('namespace',
                 },
               },
           ).then(function(response) {
-            globalobj.log = response.data;
+            globalobj.appendLog(response.data);
             vueObj.refreshClusterTree();
             vueObj.namespace = '';
             vueObj.labelrows = [];

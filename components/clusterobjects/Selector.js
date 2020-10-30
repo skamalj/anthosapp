@@ -91,7 +91,7 @@ Vue.component('Selector',
               </div> \
             </template>  
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-on:click="createSelector()">Submit</button> \
+                <button type="button" :disabled="!selectortype || !selectorname || (labelrows.length == 0)" class="btn btn-dark" v-on:click="createSelector()">Submit</button> \
             </div>  
         </div>`,
     },

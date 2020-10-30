@@ -12,7 +12,7 @@ Vue.component('clusterobjectyaml',
       methods: {
         handleFileUpload() {
           this.file = this.$refs.objectyaml.files[0];
-          this.filename = this.file.name;
+          this.filename = this.file ? this.file.name : 'Uplaod cluster object yaml';
         },
         submitFile() {
           this.repoName = globalobj.selected;
@@ -40,7 +40,7 @@ Vue.component('clusterobjectyaml',
             <label class="custom-file-label" for="clusterobjectyaml">{{ filename }}</label>
           </div>
           <div class="row justify-content-end"> \
-              <button type="button" class="btn btn-dark" v-on:click="submitFile()">Submit</button> \
+              <button type="button" :disabled="!file" class="btn btn-dark" v-on:click="submitFile()">Submit</button> \
           </div>   
         </div>`,
     },

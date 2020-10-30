@@ -32,8 +32,8 @@ Vue.component('cluster',
                   'Content-Type': 'multipart/form-data',
                 },
               },
-          ).then(function() {
-            window.alert('SUCCESS!!');
+          ).then(function(resp) {
+            globalobj.appendLog(resp.data);
           })
               .catch(function(err) {
                 window.alert(err);
@@ -41,8 +41,8 @@ Vue.component('cluster',
         },
         getClusterList() {
           const vueObj = this;
-          axios.post('/getClusterlist').then(function(res) {
-            vueObj.clusterlist = res.data;
+          axios.post('/getClusterlist').then(function(resp) {
+            vueObj.clusterlist = resp.data;
           })
               .catch(function(err) {
                 window.alert(err);

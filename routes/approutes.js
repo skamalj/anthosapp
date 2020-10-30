@@ -29,6 +29,7 @@ module.exports = function(app) {
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);
   app.post('/listEmptyNS', namespacectrl.listEmptyNS);
+  app.post('/uploadObjectYaml', namespacectrl.uploadObjectYaml);
 
 
   // 404

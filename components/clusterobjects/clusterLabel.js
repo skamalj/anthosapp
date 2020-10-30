@@ -84,7 +84,7 @@ Vue.component('clusterLabel',
               </div> \
             </template>  
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-on:click="labelCluster()">Submit</button> \
+                <button type="button" :disabled="!clustername || (labelrows.length == 0)" class="btn btn-dark" v-on:click="labelCluster()">Submit</button> \
             </div>  
         </div>`,
     },

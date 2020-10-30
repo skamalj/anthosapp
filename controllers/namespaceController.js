@@ -5,7 +5,7 @@ const config = require('config');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const anthosfs = require('./anthosFSController');
-
+const {saveFile} = require('./anthosFSController');
 
 // Create namespace object in requested repository. It creates a directory with NS name
 // and then places a namespace YAML in that directory. If nammespace is Abstract, then
@@ -77,8 +77,24 @@ const createEmptyNSList = async function(dirpath, result) {
   });
 };
 
+// Upload object manisfet, this is to use for object where there is no template.
+// Saves the file in namespace context sent in the request
+const uploadObjectYaml = function(req, res) {
+  console.log(JSON.stringify(req.body));
+  const repolocation = req.body.nscontext;
+  saveFile(req, req.body.filename, repolocation)
+      .then((resp) => {
+        res.status(200).send(resp);
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      });
+};
+
+
 module.exports = {
   createNamespace: createNamespace,
   listEmptyNS: listEmptyNS,
   createEmptyNSList, createEmptyNSList,
+  uploadObjectYaml: uploadObjectYaml,
 };
