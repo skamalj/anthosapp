@@ -30,7 +30,7 @@
           class="btn-block btn-secondary pl-4 text-left border-0 ">Policy</button>
       </div>
       <div class="container m-0 p-0">
-        <button type="button" v-on:click="routeTo('cluster')"
+        <button type="button" v-on:click="routeTo('NetworkPolicyObj')"
           class="btn-block btn-dark text-info pl-1 text-left">Network Policy</button>
       </div>
       <div class="container m-0 p-0">
@@ -83,6 +83,9 @@
   import Selector from './components/clusterobjects/Selector.js'; 
   import ClusterObjectYaml from './components/clusterobjects/clusterobjectyaml.js';
 
+  import NetworkPolicyObj from './components/NetworkPolicyObj.js';
+  import DefaultNetworkPolicy from './components/networkpolicyobjects/defaultnetworkpolicy.js';
+
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
     { path: '/repository', component: repository, name: 'repository'},
@@ -101,6 +104,13 @@
       { path: 'ClusterRole', component: ClusterRole },
       { path: 'Selector', component: Selector },
       { path: 'ClusterObjectManifest', component: ClusterObjectYaml },
+      ]
+    },
+    {
+      path: '/NetworkPolicyObj', component: NetworkPolicyObj, name: 'NetworkPolicyObj', children: [
+      { path: '', redirect: 'DefaultPolicy' },
+      { path: 'DefaultPolicy', component: DefaultNetworkPolicy, name: 'DefaultPolicy' },
+      { path: 'CustomPolicy', component: NSObjectYaml, name: 'CustomPolicy' },
       ]
     },
   ]
