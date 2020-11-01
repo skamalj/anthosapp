@@ -30,6 +30,7 @@ module.exports = function(app) {
   app.post('/createNamespace', namespacectrl.createNamespace);
   app.post('/listEmptyNS', namespacectrl.listEmptyNS);
   app.post('/uploadObjectYaml', namespacectrl.uploadObjectYaml);
+  app.post('/createNetworkPolicy', namespacectrl.createNetworkPolicy);
 
 
   // 404

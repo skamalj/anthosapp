@@ -91,10 +91,38 @@ const uploadObjectYaml = function(req, res) {
       });
 };
 
+const createNetworkPolicy = function(req, res) {
+  const template = `${TEMPLATE_PATH}custom-network-policy.tpl`;
+
+  const FROM_RULES = JSON.parse(req.body.rules).filter((r) => r.ruletype == 'ingress');
+  const TO_RULES = JSON.parse(req.body.rules).filter((r) => r.ruletype == 'egress');
+  const values = {POLICY_NAME: JSON.parse(req.body.networkpolicyname)};
+
+  const nsdir = JSON.parse(req.body.nscontext);
+  const repolocation = `${nsdir}${values.POLICY_NAME}-np.yaml`;
+
+  if (FROM_RULES.length > 0) {
+    values.INGRESS = FROM_RULES;
+  }
+  if (FROM_RULES.length > 0) {
+    values.EGRESS = TO_RULES;
+  }
+
+  anthosfs.compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Network Policy saved: ${result}`);
+        return res.status(200).send(`Network Policy saved: ${values.POLICY_NAME}`);
+      })
+      .catch((err) => {
+        console.log(`Network Policy not saved: ${err}`);
+        return res.status(500).send(`Network Policy not saved for ${values.POLICY_NAME}`);
+      });
+};
 
 module.exports = {
   createNamespace: createNamespace,
   listEmptyNS: listEmptyNS,
   createEmptyNSList, createEmptyNSList,
   uploadObjectYaml: uploadObjectYaml,
+  createNetworkPolicy: createNetworkPolicy,
 };

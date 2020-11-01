@@ -8,7 +8,7 @@ Vue.component('NetworkPolicyObj',
         return {
           repoName: '',
           typeList: ['DefaultPolicy', 'CustomPolicy'],
-          selectedType: 'DefaultPolicy',
+          selectedType: 'CustomPolicy',
           nsselectedcontext: '',
           filecontent: '',
         };
@@ -52,11 +52,11 @@ Vue.component('NetworkPolicyObj',
           </div>
         </div>
       </div>        
-        <div class="row">
-          <div class="col-6 m-0 p-0">
+        <div class="row m-0 p-0">
+          <div class="col-4 m-0 p-0">
             <dirtree hidenamespace=false :repoName="globalobj.selected" ref="namespacetree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
           </div>
-          <div class="col-6 m-0 p-0  justify-content-end">
+          <div class="col-8 m-0 pr-3  justify-content-end">
             <label class="text-dark" for="networkpolicyObjId">Select Policy Type</label>
             <select v-model="selectedType" class="form-control-sm m-1 p-1" id="networkpolicyObjId">
               <option v-for="type in typeList" :value="type">{{ type }}</option>

@@ -1,4 +1,4 @@
-<div id="app" class="container m-2 p-0">
+<div id="app" class="container-fluid m-2 p-0">
   <div class="row m-0 p-0 align-top">
     <div class="align-top col-2 p-0">
       <div class="container m-0 p-0">
@@ -60,11 +60,13 @@
     </div>
     <!-- <div class="col-1 m-0 p-0">
     </div> -->
-    <div class="col-9 ml-3 pb-5  justify-content-end">
+    <div class="col-10 justify-content-end">
       <router-view></router-view>
       <!--  <namespaces hidenamespace=true></namespaces> -->
+      <div class="container" style="height: 75px;">
+      </div>
     </div>
-    <div class="mt-10 fixed-bottom bg-dark overflow-auto" style="height: 75px;">
+    <div class="fixed-bottom bg-dark overflow-auto" style="height: 75px;">
       <pre class="text-left text-success bg-dark m-0 p-0">\{{ globalobj.logstr }}</pre>
     </div>
   </div>
@@ -85,6 +87,8 @@
 
   import NetworkPolicyObj from './components/NetworkPolicyObj.js';
   import DefaultNetworkPolicy from './components/networkpolicyobjects/defaultnetworkpolicy.js';
+  import CustomtNetworkPolicy from './components/networkpolicyobjects/customnetworkpolicy.js';
+
 
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
@@ -110,7 +114,7 @@
       path: '/NetworkPolicyObj', component: NetworkPolicyObj, name: 'NetworkPolicyObj', children: [
       { path: '', redirect: 'DefaultPolicy' },
       { path: 'DefaultPolicy', component: DefaultNetworkPolicy, name: 'DefaultPolicy' },
-      { path: 'CustomPolicy', component: NSObjectYaml, name: 'CustomPolicy' },
+      { path: 'CustomPolicy', component: CustomtNetworkPolicy, name: 'CustomPolicy' },
       ]
     },
   ]
