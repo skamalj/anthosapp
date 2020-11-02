@@ -119,10 +119,35 @@ const createNetworkPolicy = function(req, res) {
       });
 };
 
+const createDefaultNetworkPolicy = function(req, res) {
+  let template;
+  let repolocation;
+  const nsdir = req.body.nscontext;
+  console.log(JSON.stringify(req.body));
+  if (req.body.policytype == 'default-deny-all-ingress') {
+    template = `${TEMPLATE_PATH}default-deny-all-ingress.tpl`;
+    repolocation = `${nsdir}default-deny-all-ingress-np.yaml`;
+  } else {
+    template = `${TEMPLATE_PATH}default-deny-all-egress.tpl`;
+    repolocation = `${nsdir}default-deny-all-egress-np.yaml`;
+  }
+
+  anthosfs.compileTemplateToRepo(template, {CLUSTER_SELECTOR: req.body.clusterselector}, repolocation)
+      .then((result) => {
+        console.log(`Default Network Policy saved: ${result}`);
+        return res.status(200).send(`Default Network Policy saved: ${req.body.policytype}`);
+      })
+      .catch((err) => {
+        console.log(`Default Network Policy not saved: ${err}`);
+        return res.status(500).send(`Default Network Policy not saved for ${req.body.policytype}`);
+      });
+};
+
 module.exports = {
   createNamespace: createNamespace,
   listEmptyNS: listEmptyNS,
   createEmptyNSList, createEmptyNSList,
   uploadObjectYaml: uploadObjectYaml,
   createNetworkPolicy: createNetworkPolicy,
+  createDefaultNetworkPolicy: createDefaultNetworkPolicy,
 };

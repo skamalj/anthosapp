@@ -20,7 +20,6 @@ Vue.component('clusterObj',
           const vueObj = this;
           return axios.post('/showFileContent', {filepath: fpath})
               .then(function(resp) {
-                globalobj.appendLog(resp.data);
                 vueObj.filecontent = resp.data;
                 $('#filecontentmodal').modal('toggle');
               })

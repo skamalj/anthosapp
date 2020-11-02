@@ -29,7 +29,6 @@ Vue.component('NetworkPolicyObj',
           const vueObj = this;
           return axios.post('/showFileContent', {filepath: fpath})
               .then(function(res) {
-                globalobj.appendLog(res.data);
                 vueObj.filecontent = res.data;
                 $('#filecontentmodal').modal('toggle');
               })

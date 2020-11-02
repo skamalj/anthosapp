@@ -31,6 +31,7 @@ module.exports = function(app) {
   app.post('/listEmptyNS', namespacectrl.listEmptyNS);
   app.post('/uploadObjectYaml', namespacectrl.uploadObjectYaml);
   app.post('/createNetworkPolicy', namespacectrl.createNetworkPolicy);
+  app.post('/createDefaultNetworkPolicy', namespacectrl.createDefaultNetworkPolicy);
 
 
   // 404

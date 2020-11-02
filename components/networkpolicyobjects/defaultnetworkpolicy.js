@@ -4,32 +4,32 @@ Vue.component('defaultnetworkpolicy',
     {
       data: function() {
         return {
-          namespace: '',
           clusterselector: '',
           defaultpolicylist: [],
         };
       },
       props: ['nscontext', 'repoName'],
       methods: {
-        createNamespace() {
+        createDefaultNetworkPolicy() {
           const vueObj = this;
-          const formData = new FormData();
-          formData.append('nscontext', JSON.stringify(vueObj.nscontext));
-          formData.append('repoName', JSON.stringify(vueObj.repoName));
-          Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
-          axios.post('/createNamespace',
-              formData,
-              {
-                headers: {
-                  'Content-Type': 'multipart/form-data',
+          for (const policytype of vueObj.defaultpolicylist) {
+            const formData = new FormData();
+            formData.append('nscontext', vueObj.nscontext);
+            formData.append('policytype', policytype);
+            axios.post('/createDefaultNetworkPolicy',
+                formData,
+                {
+                  headers: {
+                    'Content-Type': 'multipart/form-data',
+                  },
                 },
-              },
-          ).then(function(response) {
-            globalobj.appendLog(response.data);
-          })
-              .catch(function(err) {
-                window.alert(err);
-              });
+            ).then(function(response) {
+              globalobj.appendLog(response.data);
+            })
+                .catch(function(err) {
+                  window.alert(err);
+                });
+          }
         },
         refreshClusterTree() {
           this.$parent.$refs.namespacetree.refresh();
@@ -55,6 +55,10 @@ Vue.component('defaultnetworkpolicy',
               </div>
               <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5>
             </div>
+            <div class="row m-1 justify-content-end"> \
+                <button type="button" class="btn btn-dark" v-on:click="createDefaultNetworkPolicy()" 
+                :disabled="!(defaultpolicylist.length > 0 && nscontext)">Submit</button> \
+            </div> 
         </div>`,
     },
 );
