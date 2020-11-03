@@ -18,16 +18,8 @@
           class="btn-block btn-secondary pl-4 text-left border-0 ">Namespaces</button>
       </div>
       <div class="container m-0 p-0">
-        <button type="button" data-toggle="collapse" data-target="#policyagent"
-          class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Policy Agent</button>
-      </div>
-      <div class="collapse" id="policyagent">
-        <button type="button" v-on:click="routeTo('repository')"
-          class="btn-block btn-secondary pl-4 text-left border-0 ">Template</button>
-      </div>
-      <div class="collapse" id="policyagent">
-        <button type="button" v-on:click="routeTo('cluster')"
-          class="btn-block btn-secondary pl-4 text-left border-0 ">Policy</button>
+        <button type="button" v-on:click="routeTo('PolicyAgentObj')"
+          class="btn-block btn-dark text-info pl-1 text-left">Policy Agent</button>
       </div>
       <div class="container m-0 p-0">
         <button type="button" v-on:click="routeTo('NetworkPolicyObj')"
@@ -78,6 +70,7 @@
   import NamespaceObj from './components/NamespaceObj.js';
   import Namespace from './components/namespaceobjects/namespace.js';
   import NSObjectYaml from './components/namespaceobjects/nsobjectyaml.js';
+  import ResourceQuotas from './components/namespaceobjects/resourcequotas.js';
 
   import ClusterObj from './components/ClusterObj.js';
   import LabelCluster from './components/clusterobjects/clusterLabel.js';
@@ -89,6 +82,7 @@
   import DefaultNetworkPolicy from './components/networkpolicyobjects/defaultnetworkpolicy.js';
   import CustomtNetworkPolicy from './components/networkpolicyobjects/customnetworkpolicy.js';
 
+  import PolicyAgentObj from './components/policyAgentObj.js';
 
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
@@ -99,6 +93,7 @@
       { path: '', redirect: 'Namespace' },
       { path: 'Namespace', component: Namespace, name: 'Namespace' },
       { path: 'ObjectYaml', component: NSObjectYaml, name: 'ObjectYaml' },
+      { path: 'ResourceQuotas', component: ResourceQuotas, name: 'ResourceQuotas' },
       ]
     },
     {
@@ -115,6 +110,12 @@
       { path: '', redirect: 'DefaultPolicy' },
       { path: 'DefaultPolicy', component: DefaultNetworkPolicy, name: 'DefaultPolicy' },
       { path: 'CustomPolicy', component: CustomtNetworkPolicy, name: 'CustomPolicy' },
+      ]
+    },
+    {
+      path: '/PolicyAgentObj', component: PolicyAgentObj, name: 'PolicyAgentObj', children: [
+      { path: '', redirect: 'UploadManifest' },
+      { path: 'UploadManifest', component: ClusterObjectYaml, name: 'UploadManifest' },
       ]
     },
   ]

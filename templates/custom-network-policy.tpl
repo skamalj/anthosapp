@@ -3,6 +3,13 @@ apiVersion: networking.k8s.io/v1
 metadata:
   name: {{ POLICY_NAME }}
 spec:
+  {{#if POLICY_POD_SELECTOR_KEY }}
+  podSelector:
+    matchLabels:
+      {{ POLICY_POD_SELECTOR_KEY }}:  {{ POLICY_POD_SELECTOR_VALUE }}
+  {{else}}
+  podSelector: {}    
+  {{/if}}    
   policyTypes:
   {{#if INGRESS }}
   - Ingress

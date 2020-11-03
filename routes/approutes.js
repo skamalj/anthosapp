@@ -32,6 +32,7 @@ module.exports = function(app) {
   app.post('/uploadObjectYaml', namespacectrl.uploadObjectYaml);
   app.post('/createNetworkPolicy', namespacectrl.createNetworkPolicy);
   app.post('/createDefaultNetworkPolicy', namespacectrl.createDefaultNetworkPolicy);
+  app.post('/createResourceQuotas', namespacectrl.createResourceQuotas);
 
 
   // 404

@@ -5,6 +5,8 @@ Vue.component('customnetworkpolicy',
       data: function() {
         return {
           networkpolicyname: '',
+          policypodselectorkey: '',
+          policypodselectorvalue: '',
           rules: [],
           ruletype: 'ingress',
           ruledeftype: 'ipblock',
@@ -68,7 +70,15 @@ Vue.component('customnetworkpolicy',
       template: ` \
         <div class="container"> \
             <div  class="container m-3">
-                <input  class="form-control" type="text" placeholder="Policy Name"  v-model:value="networkpolicyname"> \
+                <input  class="form-control" type="text" placeholder="Policy Name"  v-model:value="networkpolicyname"> \           
+              <div class="row mt-3">
+                <div  class="col-5 m-1">
+                    <input  class="form-control" type="text" placeholder="Pod Selector Key"  v-model:value="policypodselectorkey"> \
+                </div> \ 
+                <div  class="col-5 m-1">
+                    <input  class="form-control" type="text" placeholder="Pod Selector Value"  v-model:value="policypodselectorvalue"> \
+                </div> \ 
+              </div>  
             </div> \ 
             <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5>
             <div  class="container border m-3"> \

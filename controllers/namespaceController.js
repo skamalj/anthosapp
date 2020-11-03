@@ -96,7 +96,9 @@ const createNetworkPolicy = function(req, res) {
 
   const FROM_RULES = JSON.parse(req.body.rules).filter((r) => r.ruletype == 'ingress');
   const TO_RULES = JSON.parse(req.body.rules).filter((r) => r.ruletype == 'egress');
-  const values = {POLICY_NAME: JSON.parse(req.body.networkpolicyname)};
+  const values = {POLICY_NAME: JSON.parse(req.body.networkpolicyname),
+    POLICY_POD_SELECTOR_KEY: JSON.parse(req.body.policypodselectorkey),
+    POLICY_POD_SELECTOR_VALUE: JSON.parse(req.body.policypodselectorvalue)};
 
   const nsdir = JSON.parse(req.body.nscontext);
   const repolocation = `${nsdir}${values.POLICY_NAME}-np.yaml`;
@@ -123,7 +125,7 @@ const createDefaultNetworkPolicy = function(req, res) {
   let template;
   let repolocation;
   const nsdir = req.body.nscontext;
-  console.log(JSON.stringify(req.body));
+
   if (req.body.policytype == 'default-deny-all-ingress') {
     template = `${TEMPLATE_PATH}default-deny-all-ingress.tpl`;
     repolocation = `${nsdir}default-deny-all-ingress-np.yaml`;
@@ -143,6 +145,27 @@ const createDefaultNetworkPolicy = function(req, res) {
       });
 };
 
+const createResourceQuotas = function(req, res) {
+  const nsdir = req.body.nscontext;
+  const template = `${TEMPLATE_PATH}ns-resource-quotas.tpl`;
+  const repolocation = `${nsdir}${req.body.resourcequotasname}-rq.yaml`;
+  const values = {RESOURCE_QUOTAS_NAME: req.body.resourcequotasname,
+    CPU_LIMIT: req.body.cpulimit, MEMORY_LIMIT: req.body.memorylimit,
+    NO_OF_PODS: req.body.limitnoofpods, NO_OF_JOBS: req.body.limitnoofjobs};
+
+  console.log(JSON.stringify(values));
+
+  anthosfs.compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`ResourceQuota saved: ${result}`);
+        return res.status(200).send(`ResourceQuota saved: ${req.body.resourcequotasname}`);
+      })
+      .catch((err) => {
+        console.log(`ResourceQuota not saved: ${err}`);
+        return res.status(500).send(`ResourceQuota not saved for ${req.body.resourcequotasname}`);
+      });
+};
+
 module.exports = {
   createNamespace: createNamespace,
   listEmptyNS: listEmptyNS,
@@ -150,4 +173,5 @@ module.exports = {
   uploadObjectYaml: uploadObjectYaml,
   createNetworkPolicy: createNetworkPolicy,
   createDefaultNetworkPolicy: createDefaultNetworkPolicy,
+  createResourceQuotas: createResourceQuotas,
 };
