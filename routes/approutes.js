@@ -18,6 +18,7 @@ module.exports = function(app) {
   app.post('/deleteFile', anthosfsctrl.deleteFile);
   app.post('/showFileContent', anthosfsctrl.showFileContent);
   app.post('/deleteDir', anthosfsctrl.deleteDir);
+  app.post('/syncRepo', anthosfsctrl.execSyncRepo);
 
   app.post('/labelCluster', clusterconfigctrl.labelCluster);
   app.post('/createSelector', clusterconfigctrl.createSelector);

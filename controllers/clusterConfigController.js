@@ -126,7 +126,7 @@ const createSelector = function(req, res) {
   const values = {SELECTOR_NAME: JSON.parse(req.body.selectorname),
     KIND: JSON.parse(req.body.selectortype),
     APIVERSION: JSON.parse(req.body.selectortype) == 'ClusterSelector' ?
-      'clusterregistry.k8s.io/v1alpha1' : 'configmanagement.gke.io/v1',
+      'configmanagement.gke.io/v1' : 'configmanagement.gke.io/v1',
     LABELS: JSON.parse(req.body.labelrows)};
 
   // Get the template

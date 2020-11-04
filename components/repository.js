@@ -8,7 +8,7 @@ Vue.component('repository',
           repo: '',
           repoCredential: '',
           filename: 'Upload private key for Git-Repo',
-          doNotInitializeRepo: '',
+          doNotInitializeRepo: false,
           repolist: [],
         };
       },

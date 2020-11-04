@@ -11,7 +11,7 @@ Vue.component('DeployOperator',
       methods: {
         deployOperator() {
           const formData = new FormData();
-          formData.append('repoName', JSON.stringify(globalobj.selected));
+          formData.append('repoName', globalobj.selected);
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
           axios.post('/deployOperator',
               formData,

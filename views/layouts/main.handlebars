@@ -21,6 +21,9 @@
             <select v-model:value="selected"  class="form-control-sm m-1 p-1" id="exampleFormControlSelect1">
                <option v-for="(rp, index) in repoList" :value="rp.name">\{{ rp.name }}</option>
             </select> 
+            <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="syncRepo()">
+            <i class="fa fa-sync-alt" style="color: Dodgerblue;" aria-hidden="true"></i>
+            </button>
         </div>
         </div>
     </nav>
@@ -50,6 +53,24 @@
             }
         },
         methods: {
+            syncRepo() {
+            const vueObj = this;
+            const formData = new FormData();
+            formData.append('repoName', vueObj.selected);
+            axios.post('/syncRepo',
+                formData,
+                {
+                    headers: {
+                    'Content-Type': 'multipart/form-data',
+                    },
+                },
+            ).then((resp) => {
+                vueObj.appendLog(resp.data);
+            })
+                .catch(function(err) {
+                    window.alert(err);
+                });
+            },
             getRepoList() {    
                 vueObj = this;     
                 axios.post('/getrepolist')

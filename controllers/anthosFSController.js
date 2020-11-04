@@ -78,7 +78,7 @@ const saveFile = function(req, filename, location) {
         reject(new Error(`Unable to save file ${filename}`));
       }
       console.log(`Uploaded file was saved to ${location}${filename}`);
-      resolve(`Uploaded file was saved to ${location}${filename}`);
+      resolve(`${location}${filename}`);
     });
   });
 };
@@ -123,7 +123,7 @@ const initializeGitRepo = function(req) {
   return new Promise(async (resolve, reject) => {
     await git.cwd(GIT_REPO_BASEPATH).clone(gitrepo, req.body.repoName)
         .then(() => {
-          console.log(`Going to execute nomos: ${req.body.doNotInitializeRepo}`);
+          console.log(`Going to execute nomos: ${req.body.doNotInitializeRepo == 'false'}`);
           if (req.body.doNotInitializeRepo == 'false') {
             const pwd = spawn('nomos init --force', {detached: true, shell: true, cwd: processCwd});
             pwd.stdout.on('data', (data) => {
@@ -140,8 +140,9 @@ const initializeGitRepo = function(req) {
                 resolve();
               }
             });
+          } else {
+            resolve();
           }
-          resolve();
         })
         .catch((err) => reject(err));
   });
@@ -151,6 +152,7 @@ const initializeGitRepo = function(req) {
 const syncGitRepo = function(repoPath) {
   return new Promise((resolve, reject) => {
     git.cwd(repoPath)
+        .pull()
         .add('./*')
         .commit('Push by Anthos Accelerator')
         .push()
@@ -262,6 +264,15 @@ const showFileContent = function(req, res) {
   }
 };
 
+const execSyncRepo = function(req, res) {
+  syncGitRepo(`${GIT_REPO_BASEPATH}${req.body.repoName}`)
+      .then(() => res.status(200).send(`Repository ${req.body.repoName} synced`))
+      .catch((err) => {
+        console.log(`Repository could not synced ${err}`);
+        return res.status(500).send('Repository could not be synced');
+      });
+};
+
 module.exports = {
   saveAnthosConfig: saveAnthosConfig,
   saveGitRepo: saveGitRepo,
@@ -271,4 +282,5 @@ module.exports = {
   showFileContent: showFileContent,
   compileTemplateToRepo: compileTemplateToRepo,
   deleteDir: deleteDir,
+  execSyncRepo: execSyncRepo,
 };

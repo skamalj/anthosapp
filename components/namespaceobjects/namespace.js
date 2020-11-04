@@ -127,7 +127,7 @@ Vue.component('namespace',
                 </div> 
             </div>    
             <template v-for="(label, index) in labelrows">
-              <div  class="row  d-flex m-3 p-0"> \
+              <div  class="row m-3 p-0"> \
                 <div class="col-5">
                   <input  class="form-control" type="text" readonly v-model:value="(Object.keys(label))[0]"> \
                 </div>
@@ -141,7 +141,7 @@ Vue.component('namespace',
                 </div>           
               </div> \
             </template>  
-            <div class="row m-1 justify-content-end"> \
+            <div class="row justify-content-end"> \
                 <button type="button" class="btn btn-dark" v-on:click="createNamespace()" 
                 :disabled="!(nscontext && namespace)">Submit</button> \
             </div>  
@@ -151,7 +151,7 @@ Vue.component('namespace',
             <caption style="caption-side:top">List of empty namespaces
             <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="listEmptyNS()">
             <i class="fa fa-sync-alt" style="color: Dodgerblue;" aria-hidden="true"></i>
-            </button
+            </button>
             </caption>
               <thead>
                 <tr>
