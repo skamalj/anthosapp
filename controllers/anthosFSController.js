@@ -22,7 +22,7 @@ handlebars.registerHelper('json', function(obj) {
 });
 
 // Create kubeconfig file. One file per cluster is created and clustername is filename.
-const saveAnthosConfig = function(req, res) {
+const saveAnthosConfig = async function(req, res) {
   if (req.body.credoption === 'token') {
     try {
       const kubetemplate = fs.readFileSync(`${TEMPLATE_PATH}kubeconfig.tpl`, 'utf8');
@@ -48,7 +48,7 @@ const saveAnthosConfig = function(req, res) {
 //  This functions saves the GIT configuration as well as updates SSH config for the repository
 //  Function also initializes the repo for Anthos using 'nomos' command
 //  and pushes the intial changes to  remote
-const saveGitRepo = function(req, res) {
+const saveGitRepo = async function(req, res) {
   saveFile(req, req.body.repoName, GIT_CONFIG_BASEPATH)
       .then((filepath) => updateSSHConfig(req, filepath))
       .then(() => initializeGitRepo(req))
@@ -62,7 +62,7 @@ const saveGitRepo = function(req, res) {
 };
 
 // Function saves the file uploaded from frontend. Example of file uploads are SSH key for repository
-const saveFile = function(req, filename, location) {
+const saveFile = async function(req, filename, location) {
   return new Promise(async (resolve, reject) => {
     if (!req.files || Object.keys(req.files).length === 0) {
       console.log('Nothing to save: No files were uploaded');
@@ -90,7 +90,7 @@ const saveFile = function(req, filename, location) {
       IdentityFile /home/skamalj/anthosui/.config/git/test7
       StrictHostKeyChecking no
 */
-const updateSSHConfig = function(req, filepath) {
+const updateSSHConfig = async function(req, filepath) {
   const re = new RegExp('@([^@]*):');
   const hostname = req.body.repo.match(re)[1];
   const host = `${req.body.repoName}-${hostname}`;
@@ -112,7 +112,7 @@ const updateSSHConfig = function(req, filepath) {
 
 // Clones the repository to local data directory and initializes it if empty/requested
 // This function does not push the code, that is written separately.
-const initializeGitRepo = function(req) {
+const initializeGitRepo = async function(req) {
   const processCwd = `${GIT_REPO_BASEPATH}${req.body.repoName}`;
 
   const re = new RegExp('@([^@]*):');
@@ -149,7 +149,7 @@ const initializeGitRepo = function(req) {
 };
 
 // Commit and push the changes
-const syncGitRepo = function(repoPath) {
+const syncGitRepo = async function(repoPath) {
   return new Promise((resolve, reject) => {
     git.cwd(repoPath)
         .pull()
@@ -164,7 +164,7 @@ const syncGitRepo = function(repoPath) {
 // Function saves/stores details of all git repos configured in the system.
 // This is one place from where all details for repositories can be queried,
 // otherwiese we will need to parse repositrory folders and their remotes for information.
-const saveRepoDetails = function(req) {
+const saveRepoDetails = async function(req) {
   const repo = req.body.repo;
   const identityFile = `${GIT_REPO_BASEPATH}${req.body.repoName}`;
   const repoName = req.body.repoName;
@@ -190,7 +190,7 @@ const saveRepoDetails = function(req) {
 
 // List git repos. Function needs to be update to get information from
 // gitconfig file craeted at initialization
-const listGitRepos = function(req, res) {
+const listGitRepos = async function(req, res) {
   readFilePromise(`${GIT_CONFIG_BASEPATH}gitrepos.config`, 'utf-8')
       .then((data) => {
         const repolist = (JSON.parse(data))['repos'].map((repo) => {
@@ -207,7 +207,7 @@ const listGitRepos = function(req, res) {
 
 // Main handlebars function to create YAML manifests using values
 // send from frontend and handlebars templates
-const compileTemplateToRepo = function(template, values, repolocation) {
+const compileTemplateToRepo = async function(template, values, repolocation) {
   return new Promise(async (resolve, reject) => {
     try {
       console.log(`Building manifest using template  ${template} with values ${JSON.stringify(values)}`);
@@ -224,7 +224,7 @@ const compileTemplateToRepo = function(template, values, repolocation) {
 };
 
 // Delete file from selected repository
-const deleteFile = function(req, res) {
+const deleteFile = async function(req, res) {
   try {
     fs.unlinkSync(req.body.filename);
     const msg = `Deleted file ${JSON.stringify(req.body.filename)}`;
@@ -238,7 +238,7 @@ const deleteFile = function(req, res) {
 };
 
 // Delete directory from selected repository
-const deleteDir = function(req, res) {
+const deleteDir = async function(req, res) {
   try {
     fs.rmdirSync(req.body.dirname);
     const msg = `Deleted directory ${JSON.stringify(req.body.dirname)}`;
@@ -252,7 +252,7 @@ const deleteDir = function(req, res) {
 };
 
 // Reads the file and sends the content to frontend for display
-const showFileContent = function(req, res) {
+const showFileContent = async function(req, res) {
   try {
     const filecontent = fs.readFileSync(req.body.filepath, 'utf8');
     console.log(`File content sent for ${req.body.filepath}`);
@@ -264,12 +264,13 @@ const showFileContent = function(req, res) {
   }
 };
 
-const execSyncRepo = function(req, res) {
+// Executes git pull-push on request from frontend
+const execSyncRepo = async function(req, res) {
   syncGitRepo(`${GIT_REPO_BASEPATH}${req.body.repoName}`)
       .then(() => res.status(200).send(`Repository ${req.body.repoName} synced`))
       .catch((err) => {
         console.log(`Repository could not synced ${err}`);
-        return res.status(500).send('Repository could not be synced');
+        res.status(500).send('Repository could not be synced');
       });
 };
 

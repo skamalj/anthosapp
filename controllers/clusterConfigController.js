@@ -15,7 +15,7 @@ const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
 // This creates git secret, details of which it gets from save gitconfig file,
 // then deploys config operator to the cluster, see the use of --kubeconfig flag to
 // point to right cluster in the command
-const deployOperator = function(req, res) {
+const deployOperator = async function(req, res) {
   const deployOperator = `kubectl apply -f ${OPERATOR_PATH} \
     --kubeconfig ${KUBE_CONFIG_BASEPATH}${req.body.clusterName}`;
 
@@ -46,18 +46,18 @@ const deployOperator = function(req, res) {
       .then(() => runKubectl(gitsecret))
       .then(()=> runKubectl(applyOperatorConfig))
       .then(() => {
-        const msg = `Operator deployed successfully for cluster ${req.body.clustername}`;
+        const msg = `Operator deployed successfully for cluster ${req.body.clusterName}`;
         res.status(200).send(msg);
       })
       .catch((err) => {
-        const msg = `Operator for cluster ${req.body.clustername} could not be deploued`;
+        const msg = `Operator for cluster ${req.body.clusterName} could not be deploued`;
         console.log(`msg: ${err}`);
         res.status(500).send(msg);
       });
 };
 
 // Execute kubectl command
-const runKubectl = function(cmd) {
+const runKubectl = async function(cmd) {
   return new Promise(async (resolve, reject) => {
     const kubectlProcess = spawn(cmd, {detached: true, shell: true});
 
@@ -101,7 +101,7 @@ const getClusters = async function(req, res) {
 };
 
 // Create manifest to attach labels to cluster
-const labelCluster = function(req, res) {
+const labelCluster = async function(req, res) {
   const values = {CLUSTER_NAME: JSON.parse(req.body.clustername), LABELS: JSON.parse(req.body.labelrows)};
   const template = `${TEMPLATE_PATH}cluster-labels.tpl`;
   let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
@@ -119,7 +119,7 @@ const labelCluster = function(req, res) {
 };
 
 // Create cluster selector
-const createSelector = function(req, res) {
+const createSelector = async function(req, res) {
   let repolocation;
 
   // Set values for templates
@@ -152,8 +152,8 @@ const createSelector = function(req, res) {
       });
 };
 
-// Create manifest to create clusterrole
-const createClusterRole = function(req, res) {
+// Create manifest for clusterrole
+const createClusterRole = async function(req, res) {
   const values = {ROLE_NAME: JSON.parse(req.body.clusterrole), CLUSTER_SELECTOR: JSON.parse(req.body.clusterselector),
     RULES: JSON.parse(req.body.rules)};
   const template = `${TEMPLATE_PATH}clusterrole.tpl`;
@@ -173,7 +173,7 @@ const createClusterRole = function(req, res) {
 
 // Upload  cluster object manisfet, this is to use for object where there is no template.
 // Saves the file in "cluster" directory
-const uploadClusterObjectYaml = function(req, res) {
+const uploadClusterObjectYaml = async function(req, res) {
   const repolocation = `${GIT_REPO_BASEPATH }${req.body.repoName}/cluster/`;
   saveFile(req, req.body.filename, repolocation)
       .then((resp) => {

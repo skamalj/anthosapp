@@ -10,7 +10,7 @@ const {saveFile} = require('./anthosFSController');
 // Create namespace object in requested repository. It creates a directory with NS name
 // and then places a namespace YAML in that directory. If nammespace is Abstract, then
 // only directory is created.
-const createNamespace = function(req, res) {
+const createNamespace = async function(req, res) {
   const values = {NAMESPACE: JSON.parse(req.body.namespace), LABELS: JSON.parse(req.body.labelrows),
     CLUSTER_SELECTOR: JSON.parse(req.body.clusterselector)};
   const template = `${TEMPLATE_PATH}namespace.tpl`;
@@ -23,28 +23,28 @@ const createNamespace = function(req, res) {
       fs.mkdirSync(nsdir);
       if (JSON.parse(req.body.abstractnamespace)) {
         console.log(`Namespace saved: ${values.NAMESPACE}`);
-        return res.status(200).send(`Namespace saved: ${values.NAMESPACE}`);
+        res.status(200).send(`Namespace saved: ${values.NAMESPACE}`);
       }
     }
   } catch (err) {
     console.log(`Namespace not saved: ${err}`);
-    return res.status(500).send(`Namespace not saved for ${values.NAMESPACE}`);
+    res.status(500).send(`Namespace not saved for ${values.NAMESPACE}`);
   }
 
   anthosfs.compileTemplateToRepo(template, values, repolocation)
       .then((result) => {
-        console.log(`Namespace saved: ${values.NAMESPACE}`);
-        return res.status(200).send(`Namespace saved: ${result}`);
+        console.log(`Namespace saved: ${result}`);
+        res.status(200).send(`Namespace saved: ${values.NAMESPACE}`);
       })
       .catch((err) => {
         console.log(`Namespace not saved: ${err}`);
-        return res.status(500).send(`Namespace not saved for ${values.NAMESPACE}`);
+        res.status(500).send(`Namespace not saved for ${values.NAMESPACE}`);
       });
 };
 
 // Create and send list of empty abstract namespaces.
 // These can be reviewed and deleted by the user
-const listEmptyNS = function(req, res) {
+const listEmptyNS = async function(req, res) {
   const reponame = JSON.parse(req.body.repoName);
   const repodir = `${GIT_REPO_BASEPATH}${reponame}/`;
   createEmptyNSList(repodir, [])
@@ -79,7 +79,7 @@ const createEmptyNSList = async function(dirpath, result) {
 
 // Upload object manisfet, this is to use for object where there is no template.
 // Saves the file in namespace context sent in the request
-const uploadObjectYaml = function(req, res) {
+const uploadObjectYaml = async function(req, res) {
   console.log(JSON.stringify(req.body));
   const repolocation = req.body.nscontext;
   saveFile(req, req.body.filename, repolocation)
@@ -91,7 +91,8 @@ const uploadObjectYaml = function(req, res) {
       });
 };
 
-const createNetworkPolicy = function(req, res) {
+// Create network policy. This is used for both egress and ingress policies
+const createNetworkPolicy = async function(req, res) {
   const template = `${TEMPLATE_PATH}custom-network-policy.tpl`;
 
   const FROM_RULES = JSON.parse(req.body.rules).filter((r) => r.ruletype == 'ingress');
@@ -113,15 +114,17 @@ const createNetworkPolicy = function(req, res) {
   anthosfs.compileTemplateToRepo(template, values, repolocation)
       .then((result) => {
         console.log(`Network Policy saved: ${result}`);
-        return res.status(200).send(`Network Policy saved: ${values.POLICY_NAME}`);
+        res.status(200).send(`Network Policy saved: ${values.POLICY_NAME}`);
       })
       .catch((err) => {
         console.log(`Network Policy not saved: ${err}`);
-        return res.status(500).send(`Network Policy not saved for ${values.POLICY_NAME}`);
+        res.status(500).send(`Network Policy not saved for ${values.POLICY_NAME}`);
       });
 };
 
-const createDefaultNetworkPolicy = function(req, res) {
+// Create default network policy. This function creates two so far, deny-all-egress
+// and deny-all-ingress
+const createDefaultNetworkPolicy = async function(req, res) {
   let template;
   let repolocation;
   const nsdir = req.body.nscontext;
@@ -137,15 +140,16 @@ const createDefaultNetworkPolicy = function(req, res) {
   anthosfs.compileTemplateToRepo(template, {CLUSTER_SELECTOR: req.body.clusterselector}, repolocation)
       .then((result) => {
         console.log(`Default Network Policy saved: ${result}`);
-        return res.status(200).send(`Default Network Policy saved: ${req.body.policytype}`);
+        res.status(200).send(`Default Network Policy saved: ${req.body.policytype}`);
       })
       .catch((err) => {
         console.log(`Default Network Policy not saved: ${err}`);
-        return res.status(500).send(`Default Network Policy not saved for ${req.body.policytype}`);
+        res.status(500).send(`Default Network Policy not saved for ${req.body.policytype}`);
       });
 };
 
-const createResourceQuotas = function(req, res) {
+// Creates resourcequota  k8s object.
+const createResourceQuotas = async function(req, res) {
   const nsdir = req.body.nscontext;
   const template = `${TEMPLATE_PATH}ns-resource-quotas.tpl`;
   const repolocation = `${nsdir}${req.body.resourcequotasname}-rq.yaml`;
@@ -158,11 +162,11 @@ const createResourceQuotas = function(req, res) {
   anthosfs.compileTemplateToRepo(template, values, repolocation)
       .then((result) => {
         console.log(`ResourceQuota saved: ${result}`);
-        return res.status(200).send(`ResourceQuota saved: ${req.body.resourcequotasname}`);
+        res.status(200).send(`ResourceQuota saved: ${req.body.resourcequotasname}`);
       })
       .catch((err) => {
         console.log(`ResourceQuota not saved: ${err}`);
-        return res.status(500).send(`ResourceQuota not saved for ${req.body.resourcequotasname}`);
+        res.status(500).send(`ResourceQuota not saved for ${req.body.resourcequotasname}`);
       });
 };
 

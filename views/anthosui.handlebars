@@ -1,3 +1,8 @@
+<!--
+  This page created main side menu items along with routes and callable components.
+  All new components, main or child, should be registered on this page and linked to routes.
+  Except routing, nothing else dynamic happens on this page.
+-->
 <div id="app" class="container-fluid m-2 p-0">
   <div class="row m-0 p-0 align-top">
     <div class="align-top col-2 p-0">
@@ -50,8 +55,7 @@
           class="btn-block btn-secondary pl-4 text-left border-0 ">Cluster</button>
       </div>
     </div>
-    <!-- <div class="col-1 m-0 p-0">
-    </div> -->
+
     <div class="col-10 justify-content-end">
       <router-view></router-view>
       <!--  <namespaces hidenamespace=true></namespaces> -->
@@ -83,6 +87,7 @@
   import CustomtNetworkPolicy from './components/networkpolicyobjects/customnetworkpolicy.js';
 
   import PolicyAgentObj from './components/policyAgentObj.js';
+  import GeneralPolicies from './components/opaobjects/generalpolicyobjects.js'
 
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
@@ -114,7 +119,8 @@
     },
     {
       path: '/PolicyAgentObj', component: PolicyAgentObj, name: 'PolicyAgentObj', children: [
-      { path: '', redirect: 'UploadManifest' },
+      { path: '', redirect: 'GeneralPolicies' },
+      { path: 'GeneralPolicies', component: GeneralPolicies, name: 'GeneralPolicies' },
       { path: 'UploadManifest', component: ClusterObjectYaml, name: 'UploadManifest' },
       ]
     },

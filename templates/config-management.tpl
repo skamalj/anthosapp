@@ -10,3 +10,5 @@ spec:
     syncBranch: master
     secretType: ssh
     policyDir: "/"
+  policyController:
+    enabled: true  

@@ -13,6 +13,7 @@ Vue.component('DeployOperator',
           const formData = new FormData();
           formData.append('repoName', globalobj.selected);
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
+          globalobj.showBusy();
           axios.post('/deployOperator',
               formData,
               {
@@ -22,8 +23,10 @@ Vue.component('DeployOperator',
               },
           ).then(function(resp) {
             globalobj.appendLog(resp.data);
+            globalobj.hideBusy();
           })
               .catch(function(err) {
+                globalobj.hideBusy();
                 window.alert(err);
               });
         },

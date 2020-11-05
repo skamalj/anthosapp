@@ -7,8 +7,8 @@ Vue.component('policyagentObj',
       data: function() {
         return {
           repoName: '',
-          typeList: ['UploadManifest'],
-          selectedType: 'UploadManifest',
+          typeList: ['GeneralPolicies', 'UploadManifest'],
+          selectedType: 'GeneralPolicies',
           filecontent: '',
         };
       },

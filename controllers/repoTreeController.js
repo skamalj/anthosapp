@@ -5,8 +5,8 @@ const config = require('config');
 
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 
-
-const repoTree = function(req, res) {
+// Handler for dirtree request from frontend.
+const repoTree = async function(req, res) {
   const hidenamespace = req.body.hidenamespace == 'true'? true : false;
   readDirTreeAsync(`${GIT_REPO_BASEPATH}${req.body.repoName}/`, hidenamespace)
       .then((tree) => {
@@ -22,7 +22,8 @@ const repoTree = function(req, res) {
       });
 };
 
-const readDirTreeAsync = function(dirpath, hidenamespace) {
+// Makes readDirTree function async by returning a Promise.
+const readDirTreeAsync = async function(dirpath, hidenamespace) {
   return new Promise( async (resolve, reject) => {
     try {
       const tree = await readDirTree(dirpath, hidenamespace);
@@ -33,6 +34,9 @@ const readDirTreeAsync = function(dirpath, hidenamespace) {
     }
   });
 };
+
+// Recursively creates directory tree from base path passed into this function. This function
+// provides input to tree vueObject on the frontend.
 const readDirTree = async function(dirpath, hidenamespace) {
   const tree = {files: []};
   const dirents = fs.readdirSync(dirpath, {withFileTypes: true});
