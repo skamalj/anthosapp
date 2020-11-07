@@ -5,6 +5,7 @@ const anthosfsctrl = require('../controllers/anthosFSController.js');
 const clusterconfigctrl = require('../controllers/clusterConfigController.js');
 const repotreectrl = require('../controllers/repoTreeController.js');
 const namespacectrl = require('../controllers/namespaceController.js');
+const opapolicyctrl = require('../controllers/opaPolicyController.js');
 
 module.exports = function(app) {
   app.get('/', function(req, res) {
@@ -34,6 +35,8 @@ module.exports = function(app) {
   app.post('/createNetworkPolicy', namespacectrl.createNetworkPolicy);
   app.post('/createDefaultNetworkPolicy', namespacectrl.createDefaultNetworkPolicy);
   app.post('/createResourceQuotas', namespacectrl.createResourceQuotas);
+
+  app.post('/createGeneralOPAPolicies', opapolicyctrl.createGeneralOPAPolicies);
 
 
   // 404

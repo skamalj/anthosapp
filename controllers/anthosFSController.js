@@ -218,6 +218,7 @@ const compileTemplateToRepo = async function(template, values, repolocation) {
       console.log(`Template result\n============\n${result}\n============\nsaved to ${repolocation}`);
       return resolve(result);
     } catch (err) {
+      console.log(`Not able to compile template: ${err}`);
       return reject(err);
     }
   });

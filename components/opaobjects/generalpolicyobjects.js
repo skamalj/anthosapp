@@ -9,6 +9,7 @@ Vue.component('generalpolicyobjects',
             {name: 'K8sRequiredLabels', desc: 'Mandates specifying specified  label key, value to k8s objects'},
           ],
           selectedpolicytype: '',
+          clusterselector: '',
           policylist: [],
           param1: '',
           param2: '',
@@ -26,10 +27,12 @@ Vue.component('generalpolicyobjects',
           this.param4 = '';
           this.param5 = '';
         },
-        createPolicies() {
+        createGeneralOPAPolicies() {
           vueObj = this;
           this.repoName = globalobj.selected;
           const formData = new FormData();
+          formData.append('clusterselector', JSON.stringify(this.clusterselector));
+          formData.append('repoName', JSON.stringify(globalobj.selected));
           formData.append('policylist', JSON.stringify(this.policylist));
           axios.post('/createGeneralOPAPolicies',
               formData,
@@ -39,10 +42,10 @@ Vue.component('generalpolicyobjects',
                 },
               },
           ).then(function(resp) {
-            globalobj.appendLog(resp.data);
+            globalobj.appendLog(JSON.stringify(resp.data));
             vueObj.refreshClutserTree();
             vueObj.clusterselectorname = '';
-            vueObj.labelrows = [];
+            vueObj.policylist = [];
           })
               .catch(function(err) {
                 window.alert(err);
@@ -54,6 +57,9 @@ Vue.component('generalpolicyobjects',
       },
       template: ` \
         <div class="container"> \
+            <div class="container m-3 p-1"> \
+              <input  class="form-control" type="text" placeholder="Cluster Selector" v-model:value="clusterselector"> \
+            </div> \
             <div class="form-group m-3 p-1">     
               <select v-model="selectedpolicytype" class="form-control">
                 <option hidden value=""> Select Policy Type</option>
@@ -76,11 +82,11 @@ Vue.component('generalpolicyobjects',
                   <input  class="form-control" type="text" placeholder="CPU Limit" v-model="param4">
                 </div>
                 <div class="col-6 p-1">
-                  <input  class="form-control" type="text" placeholder="Except Ip CIDR"  v-model="param5">
+                  <input  class="form-control" type="text" placeholder="Memory Limit"  v-model="param5">
                 </div>  
                 <div class="col-12 d-flex m-3 justify-content-end"> \
                   <button type="button" class="btn btn-dark" v-on:click="addNewPolicy({name: param1, 
-                    type: selectedpolicytype, apigroup: param2, kind: param3, memorylimit: param4, cpulimit: param5})"
+                    type: selectedpolicytype, apigroup: param2, kind: param3, memorylimit: param5, cpulimit: param4})"
                     :disabled="!(param1 && param3 && param4 && param5)"> \
                         Add
                   </button> \

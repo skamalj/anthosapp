@@ -48,10 +48,10 @@ Vue.component('policyagentObj',
         </div>
       </div>
         <div class="row">
-          <div class="col-4 m-0 p-0">
+          <div class="col-5 m-0 p-0">
             <dirtree hidenamespace=true :repoName="globalobj.selected" @filecontentevent="showfilemodal" ref="clusterdirtree"></dirtree>
           </div>
-          <div class="col-8 m-0 pr-3  justify-content-end">
+          <div class="col-7 m-0 pr-3  justify-content-end">
             <label class="text-dark" for="clusterObjId">Select Cluster Object</label>
             <select v-model="selectedType" class="form-control-sm m-1 p-1" id="clusterObjId">
               <option v-for="type in typeList" :value="type">{{ type }}</option>

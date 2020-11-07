@@ -51,6 +51,25 @@ Vue.component('cluster',
       },
       template: ` \
         <div class="container"> \
+            <div class="modal fade" id="tokenhelpmodal" tabindex="-1">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Commands to create token</h5>
+                  </div>  
+                  <div class="modal-body">
+                    <pre>
+kubectl create serviceaccount anthos-sa
+kubectl create clusterrolebinding anthos-sa-binding 
+    --clusterrole=cluster-admin --serviceaccount=default:anthos-sa
+SA_SECRET=\`kubectl get secrets | grep -i anthos-sa | cut -d' ' -f 1\`
+TOKEN=\`kubectl get secret $SA_SECRET -o=jsonpath="{.data.token}" | base64 -d\`
+echo $TOKEN
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </div>   
             <div class="container m-3">
                 <div class="form-check form-check-inline"> \
                     <input class="form-check-input" type="radio" id="configfile" value="configfile" v-model="credoption"> \
@@ -60,6 +79,7 @@ Vue.component('cluster',
                     <input class="form-check-input" type="radio"  id="token" value="token" v-model="credoption"> \
                     <label class="form-check-label" for="token">Token</label> \
                 </div> \
+                <i class="fas fa-question-circle" data-toggle="modal" data-target="#tokenhelpmodal"></i>
             </div> 
             <div  class="container m-3"> \   
                 <div v-if="credoption == 'configfile'" class="custom-file">
