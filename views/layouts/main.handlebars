@@ -72,6 +72,7 @@
             const vueObj = this;
             const formData = new FormData();
             formData.append('repoName', vueObj.selected);
+            vueObj.showBusy();
             axios.post('/syncRepo',
                 formData,
                 {
@@ -81,6 +82,7 @@
                 },
             ).then((resp) => {
                 vueObj.appendLog(resp.data);
+                vueObj.hideBusy();
             })
                 .catch(function(err) {
                     window.alert(err);

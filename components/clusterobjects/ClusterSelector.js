@@ -1,10 +1,9 @@
 /* eslint-disable max-len */
 export default
-Vue.component('Selector',
+Vue.component('ClusterSelector',
     {
       data: function() {
         return {
-          selectortype: '',
           selectorname: '',
           newlabelkey: '',
           newlabelval: '',
@@ -25,7 +24,7 @@ Vue.component('Selector',
           this.repoName = globalobj.selected;
           const formData = new FormData();
           Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
-          axios.post('/createSelector',
+          axios.post('/createClusterSelector',
               formData,
               {
                 headers: {
@@ -48,16 +47,6 @@ Vue.component('Selector',
       },
       template: ` \
         <div class="container"> \
-            <div  class="container m-3">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="selectorType" id="clusterselector" v-model="selectortype" value="ClusterSelector">
-                <label class="form-check-label" for="clusterselector">Cluster Selector</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="selectorType" id="namespaceselector" v-model="selectortype" value="NamespaceSelector">
-                <label class="form-check-label" for="namespaceselector">Namespace Selector</label>
-              </div>
-            </div>
             <div  class="container m-3"> \
                 <input  class="form-control" type="text" placeholder="Selector Name" v-model:value="selectorname"> \
             </div> \ 
@@ -91,7 +80,7 @@ Vue.component('Selector',
               </div> \
             </template>  
             <div class="row m-1 justify-content-end"> \
-                <button type="button" :disabled="!selectortype || !selectorname || (labelrows.length == 0)" class="btn btn-dark" v-on:click="createSelector()">Submit</button> \
+                <button type="button" :disabled="!selectorname || (labelrows.length == 0)" class="btn btn-dark" v-on:click="createSelector()">Submit</button> \
             </div>  
         </div>`,
     },

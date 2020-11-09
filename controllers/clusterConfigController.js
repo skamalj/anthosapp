@@ -118,37 +118,29 @@ const labelCluster = async function(req, res) {
       });
 };
 
-// Create cluster selector
-const createSelector = async function(req, res) {
-  let repolocation;
-
+// Create cluster selector and save it in clusterregistry
+const createClusterSelector = async function(req, res) {
   // Set values for templates
   const values = {SELECTOR_NAME: JSON.parse(req.body.selectorname),
-    KIND: JSON.parse(req.body.selectortype),
-    APIVERSION: JSON.parse(req.body.selectortype) == 'ClusterSelector' ?
-      'configmanagement.gke.io/v1' : 'configmanagement.gke.io/v1',
+    KIND: 'ClusterSelector',
+    APIVERSION: 'configmanagement.gke.io/v1',
     LABELS: JSON.parse(req.body.labelrows)};
 
-  // Get the template
+  // Get the template, this temlate is used by both clusterselector as well as namespaceselector
   const template = `${TEMPLATE_PATH}anthos-selector.tpl`;
 
-  // Get replocation, this will be different based on which selector is being created
-  if (JSON.parse(req.body.selectortype) == 'ClusterSelector') {
-    repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
-    repolocation = `${repolocation}/${JSON.parse(req.body.selectorname)}-clusterselector.yaml`;
-  } else {
-    repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/cluster`;
-    repolocation = `${repolocation}/${JSON.parse(req.body.selectorname)}-nsselector.yaml`;
-  }
+  // Set filelocation and name for selector
+  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
+  repolocation = `${repolocation}/${JSON.parse(req.body.selectorname)}-clusterselector.yaml`;
 
   compileTemplateToRepo(template, values, repolocation)
       .then((result) => {
-        console.log(`${JSON.parse(req.body.selectortype)} saved: ${result}`);
-        return res.status(200).send(`${JSON.parse(req.body.selectortype)} saved: ${JSON.parse(req.body.selectorname)}`);
+        console.log(`ClusterSelector saved: ${result}`);
+        return res.status(200).send(`ClusterSelector saved: ${JSON.parse(req.body.selectorname)}`);
       })
       .catch((err) => {
-        console.log(`${JSON.parse(req.body.selectortype)} ${JSON.parse(req.body.selectorname)} not saved: ${err}`);
-        return res.status(500).send(`${JSON.parse(req.body.selectortype)}  ${JSON.parse(req.body.selectorname)} not saved`);
+        console.log(`ClusterSelector ${JSON.parse(req.body.selectorname)} not saved: ${err}`);
+        return res.status(500).send(`ClusterSelector  ${JSON.parse(req.body.selectorname)} not saved`);
       });
 };
 
@@ -189,6 +181,6 @@ module.exports = {
   getClusters: getClusters,
   labelCluster: labelCluster,
   createClusterRole: createClusterRole,
-  createSelector: createSelector,
+  createClusterSelector: createClusterSelector,
   uploadClusterObjectYaml: uploadClusterObjectYaml,
 };

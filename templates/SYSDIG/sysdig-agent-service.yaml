@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sysdig-agent
+  {{#if CLUSTER_SELECTOR}}
+  annotations:
+     configmanagement.gke.io/cluster-selector: {{ CLUSTER_SELECTOR }}
+  {{/if}} 
+  labels:
+    app: sysdig-agent
+spec:
+  selector:
+    app: sysdig-agent
+  ports:
+  - protocol: TCP
+    port: 7765
+    targetPort: 7765

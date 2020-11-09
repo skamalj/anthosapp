@@ -2,13 +2,13 @@
 import dirtree from './dirtree.js';
 
 export default
-Vue.component('NamespaceObj',
+Vue.component('SecurityToolsObj',
     {
       data: function() {
         return {
           repoName: '',
-          typeList: ['Namespace', 'NamespaceSelector', 'ResourceQuotas', 'DeployImage', 'ObjectYaml'],
-          selectedType: 'Namespace',
+          typeList: ['Sysdig'],
+          selectedType: 'Sysdig',
           nsselectedcontext: '',
           filecontent: '',
         };
@@ -38,7 +38,7 @@ Vue.component('NamespaceObj',
         },
       },
       created() {
-        this.$router.push(`/NamespaceObj/${this.selectedType}`);
+        this.$router.push(`/SecurityToolsObj/${this.selectedType}`);
       },
       template: ` \
       <div class="container justify-content-end p-0 m-0">
@@ -53,7 +53,7 @@ Vue.component('NamespaceObj',
       </div>        
         <div class="row">
           <div class="col-4 m-0 p-0">
-            <dirtree hidenamespace=false :repoName="globalobj.selected" ref="namespacetree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
+            <dirtree hidenamespace=false :repoName="globalobj.selected" ref="securitytoolstree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
           </div>
           <div class="col-7 m-0 pr-3">
             <label class="text-dark" for="namespaceObjId">Select Namespace Object</label>

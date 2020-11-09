@@ -5,7 +5,7 @@ const config = require('config');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const anthosfs = require('./anthosFSController');
-const {saveFile} = require('./anthosFSController');
+const {compileTemplateToRepo, saveFile} = require('./anthosFSController');
 
 // Create namespace object in requested repository. It creates a directory with NS name
 // and then places a namespace YAML in that directory. If nammespace is Abstract, then
@@ -137,7 +137,16 @@ const createDefaultNetworkPolicy = async function(req, res) {
     repolocation = `${nsdir}default-deny-all-egress-np.yaml`;
   }
 
-  anthosfs.compileTemplateToRepo(template, {CLUSTER_SELECTOR: req.body.clusterselector}, repolocation)
+  const values = {};
+  values.SELECTORS = [];
+  if (req.body.clusterselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'cluster-selector', CLUSTER_SELECTOR: req.body.clusterselector});
+  }
+  if (req.body.namespaceselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'namespace-selector', CLUSTER_SELECTOR: req.body.namespaceselector});
+  }
+
+  anthosfs.compileTemplateToRepo(template, values, repolocation)
       .then((result) => {
         console.log(`Default Network Policy saved: ${result}`);
         res.status(200).send(`Default Network Policy saved: ${req.body.policytype}`);
@@ -151,11 +160,21 @@ const createDefaultNetworkPolicy = async function(req, res) {
 // Creates resourcequota  k8s object.
 const createResourceQuotas = async function(req, res) {
   const nsdir = req.body.nscontext;
-  const template = `${TEMPLATE_PATH}ns-resource-quotas.tpl`;
   const repolocation = `${nsdir}${req.body.resourcequotasname}-rq.yaml`;
+
+  const template = `${TEMPLATE_PATH}ns-resource-quotas.tpl`;
+
   const values = {RESOURCE_QUOTAS_NAME: req.body.resourcequotasname,
     CPU_LIMIT: req.body.cpulimit, MEMORY_LIMIT: req.body.memorylimit,
     NO_OF_PODS: req.body.limitnoofpods, NO_OF_JOBS: req.body.limitnoofjobs};
+
+  values.SELECTORS = [];
+  if (req.body.clusterselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'cluster-selector', CLUSTER_SELECTOR: req.body.clusterselector});
+  }
+  if (req.body.namespaceselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'namespace-selector', CLUSTER_SELECTOR: req.body.namespaceselector});
+  }
 
   console.log(JSON.stringify(values));
 
@@ -170,12 +189,73 @@ const createResourceQuotas = async function(req, res) {
       });
 };
 
+// Create namespace selector and save it in clusterregistry
+const createNamespaceSelector = async function(req, res) {
+  // Set values for templates
+  const values = {SELECTOR_NAME: JSON.parse(req.body.selectorname),
+    KIND: 'NamespaceSelector',
+    APIVERSION: 'configmanagement.gke.io/v1',
+    LABELS: JSON.parse(req.body.labelrows)};
+
+  // Get the template, this temlate is used by both clusterselector as well as namespaceselector
+  const template = `${TEMPLATE_PATH}anthos-selector.tpl`;
+
+  // Set filelocation and name for selector
+  let repolocation = req.body.nscontext;
+  repolocation = `${repolocation}${JSON.parse(req.body.selectorname)}-nsselector.yaml`;
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`NamespaceSelector saved: ${result}`);
+        return res.status(200).send(`NamespaceSelector saved: ${JSON.parse(req.body.selectorname)}`);
+      })
+      .catch((err) => {
+        console.log(`NamespaceSelector ${JSON.parse(req.body.selectorname)} not saved: ${err}`);
+        return res.status(500).send(`NamespaceSelector  ${JSON.parse(req.body.selectorname)} not saved`);
+      });
+};
+
+// Creates resourcequota  k8s object.
+const createDeployment = async function(req, res) {
+  const nsdir = req.body.nscontext;
+  const repolocation = `${nsdir}${req.body.deploymentname}-dep.yaml`;
+
+  const template = `${TEMPLATE_PATH}deploy-image.tpl`;
+
+  const values = {NAME: req.body.deploymentname,
+    IMAGE: req.body.image, REPLICAS: req.body.replicas,
+    PORT: req.body.port, SERVICE_PORT: req.body.serviceport};
+
+  values.SELECTORS = [];
+  if (req.body.clusterselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'cluster-selector', CLUSTER_SELECTOR: req.body.clusterselector});
+  }
+  if (req.body.namespaceselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'namespace-selector', CLUSTER_SELECTOR: req.body.namespaceselector});
+  }
+
+  console.log(JSON.stringify(values));
+
+  anthosfs.compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Deployment created: ${result}`);
+        res.status(200).send(`Deployment created: ${req.body.deploymentname}`);
+      })
+      .catch((err) => {
+        console.log(`Deployment could not be created: ${err}`);
+        res.status(500).send(`Deployment could not be created for ${req.body.deploymentname}`);
+      });
+};
+
+
 module.exports = {
   createNamespace: createNamespace,
+  createNamespaceSelector: createNamespaceSelector,
   listEmptyNS: listEmptyNS,
   createEmptyNSList, createEmptyNSList,
   uploadObjectYaml: uploadObjectYaml,
   createNetworkPolicy: createNetworkPolicy,
   createDefaultNetworkPolicy: createDefaultNetworkPolicy,
   createResourceQuotas: createResourceQuotas,
+  createDeployment: createDeployment,
 };

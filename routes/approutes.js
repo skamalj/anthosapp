@@ -6,6 +6,7 @@ const clusterconfigctrl = require('../controllers/clusterConfigController.js');
 const repotreectrl = require('../controllers/repoTreeController.js');
 const namespacectrl = require('../controllers/namespaceController.js');
 const opapolicyctrl = require('../controllers/opaPolicyController.js');
+const securitytoolsctrl = require('../controllers/toolsController.js');
 
 module.exports = function(app) {
   app.get('/', function(req, res) {
@@ -22,7 +23,7 @@ module.exports = function(app) {
   app.post('/syncRepo', anthosfsctrl.execSyncRepo);
 
   app.post('/labelCluster', clusterconfigctrl.labelCluster);
-  app.post('/createSelector', clusterconfigctrl.createSelector);
+  app.post('/createClusterSelector', clusterconfigctrl.createClusterSelector);
   app.post('/deployOperator', clusterconfigctrl.deployOperator);
   app.post('/getClusterList', clusterconfigctrl.getClusters);
   app.post('/createClusterRole', clusterconfigctrl.createClusterRole);
@@ -30,14 +31,17 @@ module.exports = function(app) {
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);
+  app.post('/createNamespaceSelector', namespacectrl.createNamespaceSelector);
   app.post('/listEmptyNS', namespacectrl.listEmptyNS);
   app.post('/uploadObjectYaml', namespacectrl.uploadObjectYaml);
   app.post('/createNetworkPolicy', namespacectrl.createNetworkPolicy);
   app.post('/createDefaultNetworkPolicy', namespacectrl.createDefaultNetworkPolicy);
   app.post('/createResourceQuotas', namespacectrl.createResourceQuotas);
+  app.post('/createDeployment', namespacectrl.createDeployment);
 
   app.post('/createGeneralOPAPolicies', opapolicyctrl.createGeneralOPAPolicies);
 
+  app.post('/setupSysdig', securitytoolsctrl.setupSysdig);
 
   // 404
   app.use(function(req, res, next) {

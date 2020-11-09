@@ -15,6 +15,7 @@ const getValuesForPolicy = function(policy, path) {
 
     policy.apigroup = policy.apigroup == '' ? policy.apigroup : ',' + policy.apigroup;
     let values = {};
+
     if (policyType == 'K8sContainerLimits') {
       values = {POLICY_NAME: policyName, CLUSTER_SELECTOR: policy.clusterselector,
         API_GROUPS: policy.apigroup.split(','), KIND: policy.kind.split(','),

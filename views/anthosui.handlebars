@@ -39,7 +39,7 @@
           class="btn-block btn-secondary pl-4 text-left border-0 ">Observe</button>
       </div>
       <div class="collapse" id="tools">
-        <button type="button" v-on:click="routeTo('cluster')"
+        <button type="button" v-on:click="routeTo('SecurityToolsObj')"
           class="btn-block btn-secondary pl-4 text-left border-0 ">Secure</button>
       </div>
       <div class="container m-0 p-0">
@@ -71,15 +71,18 @@
   import cluster from './components/cluster.js';
   import repository from './components/repository.js';
   import OnboardCluster from './components/OnboardCluster.js';
+
   import NamespaceObj from './components/NamespaceObj.js';
   import Namespace from './components/namespaceobjects/namespace.js';
   import NSObjectYaml from './components/namespaceobjects/nsobjectyaml.js';
+  import NamespaceSelector from './components/namespaceobjects/namespaceselector.js';
   import ResourceQuotas from './components/namespaceobjects/resourcequotas.js';
+  import DeployImage from './components/namespaceobjects/deployimage.js';
 
   import ClusterObj from './components/ClusterObj.js';
   import LabelCluster from './components/clusterobjects/clusterLabel.js';
   import ClusterRole from './components/clusterobjects/clusterRole.js'; 
-  import Selector from './components/clusterobjects/Selector.js'; 
+  import ClusterSelector from './components/clusterobjects/ClusterSelector.js'; 
   import ClusterObjectYaml from './components/clusterobjects/clusterobjectyaml.js';
 
   import NetworkPolicyObj from './components/NetworkPolicyObj.js';
@@ -89,6 +92,9 @@
   import PolicyAgentObj from './components/policyAgentObj.js';
   import GeneralPolicies from './components/opaobjects/generalpolicyobjects.js'
 
+  import SecurityToolsObj from './components/SecurityToolsObj.js';
+  import Sysdig from './components/securitytools/sysdig.js';
+
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
     { path: '/repository', component: repository, name: 'repository'},
@@ -97,8 +103,10 @@
       path: '/NamespaceObj', component: NamespaceObj, name: 'NamespaceObj', children: [
       { path: '', redirect: 'Namespace' },
       { path: 'Namespace', component: Namespace, name: 'Namespace' },
+      { path: 'NamespaceSelector', component: NamespaceSelector, name: 'NamespaceSelector' },
       { path: 'ObjectYaml', component: NSObjectYaml, name: 'ObjectYaml' },
       { path: 'ResourceQuotas', component: ResourceQuotas, name: 'ResourceQuotas' },
+      { path: 'DeployImage', component: DeployImage, name: 'DeployImage' },
       ]
     },
     {
@@ -106,7 +114,7 @@
       { path: '', redirect: 'ClusterLabel'},
       { path: 'ClusterLabel', component: LabelCluster },
       { path: 'ClusterRole', component: ClusterRole },
-      { path: 'Selector', component: Selector },
+      { path: 'ClusterSelector', component: ClusterSelector },
       { path: 'ClusterObjectManifest', component: ClusterObjectYaml },
       ]
     },
@@ -122,6 +130,12 @@
       { path: '', redirect: 'GeneralPolicies' },
       { path: 'GeneralPolicies', component: GeneralPolicies, name: 'GeneralPolicies' },
       { path: 'UploadManifest', component: ClusterObjectYaml, name: 'UploadManifest' },
+      ]
+    },
+    {
+      path: '/SecurityToolsObj', component: SecurityToolsObj, name: 'SecurityToolsObj', children: [
+      { path: '', redirect: 'Sysdig' },
+      { path: 'Sysdig', component: Sysdig, name: 'Sysdig' },
       ]
     },
   ]

@@ -2,6 +2,12 @@ apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: {{ RESOURCE_QUOTAS_NAME}}
+  {{#if SELECTORS}}
+  annotations:
+  {{/if}}
+  {{#each SELECTORS}}
+      configmanagement.gke.io/{{ this.CLUSTER_TYPE }}: {{ this.CLUSTER_SELECTOR }}
+  {{/each}}   
 spec:
   hard:
     {{#if CPU_LIMIT }}
@@ -16,4 +22,3 @@ spec:
     {{#if NO_OF_JOBS }}
     count/jobs.batch: {{ NO_OF_JOBS }}
     {{/if}}
-    

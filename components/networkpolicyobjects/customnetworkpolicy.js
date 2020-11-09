@@ -4,6 +4,8 @@ Vue.component('customnetworkpolicy',
     {
       data: function() {
         return {
+          namespaceselector: '',
+          clusterselector: '',
           networkpolicyname: '',
           policypodselectorkey: '',
           policypodselectorvalue: '',
@@ -69,6 +71,14 @@ Vue.component('customnetworkpolicy',
       },
       template: ` \
         <div class="container"> \
+            <h5><span class="badge badge-default">Selectors:</span></h5> 
+            <div  class="container m-3"> \
+                <input  class="form-control" type="text" placeholder="Cluster Selector"  v-model:value="clusterselector"> \
+            </div> \
+            <div  class="container m-3"> \
+                <input  class="form-control" type="text" placeholder="Namespace Selector"  v-model:value="namespaceselector"> \
+            </div> \
+            <h5><span class="badge badge-default">Policy Spec:</span></h5>
             <div  class="container m-3">
                 <input  class="form-control" type="text" placeholder="Policy Name"  v-model:value="networkpolicyname"> \           
               <div class="row mt-3">
@@ -81,6 +91,7 @@ Vue.component('customnetworkpolicy',
               </div>  
             </div> \ 
             <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5>
+            <h5><span class="badge badge-default">Rules:</span></h5> 
             <div  class="container border m-3"> \
               <div class="row m-1">
                 <div class="form-check form-check-inline">

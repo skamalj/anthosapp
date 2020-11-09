@@ -5,8 +5,10 @@ metadata:
   {{#if CLUSTER_SELECTOR}}
   annotations:
      configmanagement.gke.io/cluster-selector: {{ CLUSTER_SELECTOR }}
-  {{/if}}   
+  {{/if}} 
+  {{#if LABELS}}  
   labels:
+  {{/if}}
   {{#each LABELS}}
   {{#each this}}
     {{@key}}: {{this}}

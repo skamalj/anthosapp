@@ -5,6 +5,7 @@ Vue.component('defaultnetworkpolicy',
       data: function() {
         return {
           clusterselector: '',
+          namespaceselector: '',
           defaultpolicylist: [],
         };
       },
@@ -16,6 +17,8 @@ Vue.component('defaultnetworkpolicy',
             const formData = new FormData();
             formData.append('nscontext', vueObj.nscontext);
             formData.append('policytype', policytype);
+            formData.append('clusterselector', vueObj.clusterselector);
+            formData.append('namespaceselector', vueObj.namespaceselector);
             axios.post('/createDefaultNetworkPolicy',
                 formData,
                 {
@@ -39,6 +42,9 @@ Vue.component('defaultnetworkpolicy',
         <div class="container"> \
             <div  class="container m-3"> \
                 <input  class="form-control" type="text" placeholder="Cluster Selector" v-model:value="clusterselector"> \
+            </div> \
+            <div  class="container m-3"> \
+                <input  class="form-control" type="text" placeholder="Namespace Selector"  v-model:value="namespaceselector"> \
             </div> \
             <div  class="container m-3">
               <div class="form-check mb-3">
