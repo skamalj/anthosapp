@@ -4,7 +4,6 @@ const simpleGit = require('simple-git');
 const {spawn} = require('child_process');
 const fs = require('fs');
 const config = require('config');
-const git = simpleGit('/home/skamalj/anthosui/.repos', {binary: 'git'});
 const handlebars = require('handlebars');
 const util = require('util');
 const yaml = require('yaml');
@@ -16,6 +15,9 @@ const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
 const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
 const SSH_CONFIG_FILE = config.get('SSH_CONFIG_FILE');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
+
+// Initialize git
+const git = simpleGit(GIT_REPO_BASEPATH, {binary: 'git'});
 
 // Convert request objects to JSON strings for creating template results
 handlebars.registerHelper('json', function(obj) {
