@@ -44,6 +44,28 @@ Vue.component('clusterLabel',
                 window.alert(err);
               });
         },
+        getExistingLabels() {
+          const vueObj = this;
+          // Set reponame from global vue object and send to bankend post request
+          this.repoName = globalobj.selected;
+          const formData = new FormData();
+          Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
+          axios.post('/getClusterLabels',
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              },
+          ).then(function(resp) {
+            if (resp.data) {
+              vueObj.labelrows = resp.data;
+            }
+          })
+              .catch(function(err) {
+                window.alert(err);
+              });
+        },
         // This code uses ref object to find a parent and call refresh on that directory tree
         refreshClusterTree() {
           this.$parent.$refs.clusterdirtree.refresh();
@@ -52,7 +74,7 @@ Vue.component('clusterLabel',
       template: ` \
         <div class="container"> \
             <div  class="container m-3"> \
-                <input  class="form-control" type="text" placeholder="Cluster Name" id="clustername" v-model:value="clustername"> \
+                <input  class="form-control" type="text" placeholder="Cluster Name" id="clustername" v-on:keyup.enter="getExistingLabels()" v-model:value="clustername"> \
             </div> \ 
             <div  class="row  d-flex m-3 p-0"> \
                 <div class="col-5">

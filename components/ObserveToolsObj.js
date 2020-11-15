@@ -2,13 +2,13 @@
 import dirtree from './dirtree.js';
 
 export default
-Vue.component('SecurityToolsObj',
+Vue.component('ObserveToolsObj',
     {
       data: function() {
         return {
           repoName: '',
-          typeList: ['Sysdig'],
-          selectedType: 'Sysdig',
+          typeList: ['Grafana'],
+          selectedType: 'Grafana',
           nsselectedcontext: '',
           filecontent: '',
         };
@@ -38,7 +38,7 @@ Vue.component('SecurityToolsObj',
         },
       },
       created() {
-        this.$router.push(`/SecurityToolsObj/${this.selectedType}`);
+        this.$router.push(`/ObserveToolsObj/${this.selectedType}`);
       },
       template: ` \
       <div class="container justify-content-end p-0 m-0">
@@ -53,10 +53,10 @@ Vue.component('SecurityToolsObj',
       </div>        
         <div class="row">
           <div class="col-4 m-0 p-0">
-            <dirtree hidenamespace=false :repoName="globalobj.selected" ref="securitytoolstree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
+            <dirtree hidenamespace=false :repoName="globalobj.selected" ref="observetoolstree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
           </div>
           <div class="col-7 m-0 pr-3">
-            <label class="text-dark" for="namespaceObjId">Select Security Tool</label>
+            <label class="text-dark" for="namespaceObjId">Select Tool for Observability</label>
             <select v-model="selectedType" class="form-control-sm" id="namespaceObjId">
               <option v-for="type in typeList" :value="type">{{ type }}</option>
             </select>

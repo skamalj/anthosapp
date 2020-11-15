@@ -7,6 +7,7 @@ const config = require('config');
 const git = simpleGit('/home/skamalj/anthosui/.repos', {binary: 'git'});
 const handlebars = require('handlebars');
 const util = require('util');
+const yaml = require('yaml');
 const readFilePromise = util.promisify(fs.readFile);
 
 // Configurations are set in /config app directory in default.json
@@ -152,7 +153,6 @@ const initializeGitRepo = async function(req) {
 const syncGitRepo = async function(repoPath) {
   return new Promise((resolve, reject) => {
     git.cwd(repoPath)
-        .pull()
         .add('./*')
         .commit('Push by Anthos Accelerator')
         .push()
@@ -275,6 +275,16 @@ const execSyncRepo = async function(req, res) {
       });
 };
 
+const getObjectYaml = function(fpath) {
+  try {
+    const yamlfile = fs.readFileSync(fpath, 'utf8');
+    return yaml.parse(yamlfile);
+  } catch (err) {
+    console.log(`Can not read object from  yaml file ${fpath}: ${err}`);
+    return null;
+  }
+};
+
 module.exports = {
   saveAnthosConfig: saveAnthosConfig,
   saveGitRepo: saveGitRepo,
@@ -285,4 +295,5 @@ module.exports = {
   compileTemplateToRepo: compileTemplateToRepo,
   deleteDir: deleteDir,
   execSyncRepo: execSyncRepo,
+  getObjectYaml: getObjectYaml,
 };

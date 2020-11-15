@@ -60,7 +60,7 @@ Vue.component('cluster',
                   <div class="modal-body">
                     <pre>
 kubectl create serviceaccount anthos-sa
-kubectl create clusterrolebinding anthos-sa-binding 
+kubectl create clusterrolebinding anthos-sa-binding \\
     --clusterrole=cluster-admin --serviceaccount=default:anthos-sa
 SA_SECRET=\`kubectl get secrets | grep -i anthos-sa | cut -d' ' -f 1\`
 TOKEN=\`kubectl get secret $SA_SECRET -o=jsonpath="{.data.token}" | base64 -d\`
@@ -111,7 +111,7 @@ echo $TOKEN
               </thead>
               <tbody>
                 <tr v-for="(cluster, index) in clusterlist" v-if="cluster">
-                  <th scope="row">{{ index +1 }}</th>
+                  <th scope="row">{{ index + 1}}</th>
                   <td>{{ cluster.name }}</td>
                   <td>{{ cluster.endpoint }}</td>
                 </tr>

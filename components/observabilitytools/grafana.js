@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 export default
-Vue.component('sysdig',
+Vue.component('grafana',
     {
       data: function() {
         return {
@@ -10,13 +10,13 @@ Vue.component('sysdig',
       },
       props: ['nscontext', 'repoName'],
       methods: {
-        setupSysdig() {
+        setupGrafana() {
           const vueObj = this;
           const formData = new FormData();
           formData.append('nscontext', vueObj.nscontext);
           formData.append('repoName', globalobj.selected);
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
-          axios.post('/setupSysdig',
+          axios.post('/setupGrafana',
               formData,
               {
                 headers: {
@@ -33,7 +33,7 @@ Vue.component('sysdig',
               });
         },
         refreshClusterTree() {
-          this.$parent.$refs.securitytoolstree.refresh();
+          this.$parent.$refs.observetoolstree.refresh();
         },
       },
       template: ` \
@@ -45,7 +45,7 @@ Vue.component('sysdig',
                 <input  class="form-control" type="text" placeholder="Access Key"  v-model:value="access_key"> \
             </div> \ 
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-on:click="setupSysdig()" 
+                <button type="button" class="btn btn-dark" v-on:click="setupGrafana()" 
                 :disabled="!(nscontext && access_key)">Submit</button> \
             </div>  
             <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5> 

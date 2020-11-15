@@ -4,7 +4,7 @@ const {spawn} = require('child_process');
 const fs = require('fs');
 const handlebars = require('handlebars');
 const yaml = require('yaml');
-const {compileTemplateToRepo, saveFile} = require('./anthosFSController');
+const {compileTemplateToRepo, saveFile, getObjectYaml} = require('./anthosFSController');
 
 const OPERATOR_PATH = config.get('OPERATOR_PATH');
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
@@ -78,6 +78,32 @@ const runKubectl = async function(cmd) {
   });
 };
 
+// Execute Nomos command
+const runNomos = async function(req, res) {
+  const dirents = fs.readdirSync(KUBE_CONFIG_BASEPATH, {withFileTypes: true});
+  clusterlist = '';
+  dirents.map((d) => {
+    if (!d.name.includes('yaml')) {
+      clusterlist = clusterlist + KUBE_CONFIG_BASEPATH + d.name + ':';
+    }
+  });
+  let stdout = '';
+  let stderr = '';
+  const cmd = `KUBECONFIG=${clusterlist} nomos status`;
+  const nomosProcess = spawn(cmd, {detached: true, shell: true});
+
+  nomosProcess.stdout.on('data', (data) => {
+    stdout = data.toString('utf8');
+  });
+  nomosProcess.stderr.on('data', (data) => {
+    stderr = data.toString('utf8');
+  });
+  nomosProcess.on('close', (code) => {
+    console.log(`Nomos command: ${cmd} exited with code ${code}\nstdout: ${stdout}\nstderr: ${stderr}\n`);
+    return res.status(200).send(JSON.stringify({stdout: stdout, stderr: stderr}));
+  });
+};
+
 // Return list of registered clusters
 const getClusters = async function(req, res) {
   let clusters;
@@ -93,7 +119,7 @@ const getClusters = async function(req, res) {
         return null;
       }
     });
-    return res.status(200).send(clusters);
+    return res.status(200).send(clusters.filter((c) => (c)));
   } catch (err) {
     console.log(`Cannot create cluster list ${err}`);
     return res.status(500).send('Cannot create cluster list');
@@ -176,6 +202,25 @@ const uploadClusterObjectYaml = async function(req, res) {
       });
 };
 
+const getClusterLabels = function(req, res) {
+  try {
+    let fpath = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
+    fpath = `${fpath}/${JSON.parse(req.body.clustername)}-labels.yaml`;
+    const clusteryaml = getObjectYaml(fpath);
+    if (clusteryaml) {
+      let labels = clusteryaml.metadata.labels;
+      labels = (Object.keys(labels)).map((k) => {
+        const label = {}; label[k] = labels[k]; return label;
+      });
+      res.status(200).send(labels);
+    } else {
+      res.status(200).send([]);
+    }
+  } catch (err) {
+    console.log(`Error reading labels form ${JSON.parse(req.body.clustername)}: ${err}`);
+    res.send(500).send(`Error reading labels form ${JSON.parse(req.body.clustername)}`);
+  }
+};
 module.exports = {
   deployOperator: deployOperator,
   getClusters: getClusters,
@@ -183,4 +228,6 @@ module.exports = {
   createClusterRole: createClusterRole,
   createClusterSelector: createClusterSelector,
   uploadClusterObjectYaml: uploadClusterObjectYaml,
+  runNomos: runNomos,
+  getClusterLabels: getClusterLabels,
 };

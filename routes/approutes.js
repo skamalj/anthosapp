@@ -28,6 +28,8 @@ module.exports = function(app) {
   app.post('/getClusterList', clusterconfigctrl.getClusters);
   app.post('/createClusterRole', clusterconfigctrl.createClusterRole);
   app.post('/uploadClusterObjectYaml', clusterconfigctrl.uploadClusterObjectYaml);
+  app.post('/runNomos', clusterconfigctrl.runNomos);
+  app.post('/getClusterLabels', clusterconfigctrl.getClusterLabels);
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);

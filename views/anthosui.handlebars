@@ -35,7 +35,7 @@
           class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Tools</button>
       </div>
       <div class="collapse" id="tools">
-        <button type="button" v-on:click="routeTo('repository')"
+        <button type="button" v-on:click="routeTo('ObserveToolsObj')"
           class="btn-block btn-secondary pl-4 text-left border-0 ">Observe</button>
       </div>
       <div class="collapse" id="tools">
@@ -59,10 +59,10 @@
     <div class="col-10 justify-content-end">
       <router-view></router-view>
       <!--  <namespaces hidenamespace=true></namespaces> -->
-      <div class="container" style="height: 75px;">
+      <div class="container" style="height: 100px;">
       </div>
     </div>
-    <div class="fixed-bottom bg-dark overflow-auto" style="height: 75px;">
+    <div class="fixed-bottom bg-dark overflow-auto" style="height: 100px;">
       <pre class="text-left text-success bg-dark m-0 p-0">\{{ globalobj.logstr }}</pre>
     </div>
   </div>
@@ -94,6 +94,9 @@
 
   import SecurityToolsObj from './components/SecurityToolsObj.js';
   import Sysdig from './components/securitytools/sysdig.js';
+
+  import ObserveToolsObj from './components/ObserveToolsObj.js';
+  import Grafana from './components/observabilitytools/grafana.js';
 
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
@@ -136,6 +139,12 @@
       path: '/SecurityToolsObj', component: SecurityToolsObj, name: 'SecurityToolsObj', children: [
       { path: '', redirect: 'Sysdig' },
       { path: 'Sysdig', component: Sysdig, name: 'Sysdig' },
+      ]
+    },
+    {
+      path: '/ObserveToolsObj', component: ObserveToolsObj, name: 'ObserveToolsObj', children: [
+      { path: '', redirect: 'Grafana' },
+      { path: 'Grafana', component: Sysdig, name: 'Grafana' },
       ]
     },
   ]

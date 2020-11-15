@@ -77,7 +77,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: sysdig-agent
-        image: sysdig/agent
+        image: sysdig/agent:latest
         imagePullPolicy: Always
         securityContext:
           privileged: true
@@ -98,7 +98,6 @@ spec:
         # uncommenting, as eBPF is recommended for only a few configurations.
         env:
           - name: SYSDIG_BPF_PROBE
-            value: ""
         volumeMounts:
         - mountPath: /etc/modprobe.d
           name: modprobe-d

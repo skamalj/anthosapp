@@ -18,22 +18,27 @@
 
 <body>
     <nav class="sticky-top navbar navbar-expand-sm bg-dark navbar-dark my-0 mx-0 px-2 py-0">
-        <a class="navbar-brand m-0 p-0" href="#">
-            <img src="/images/anthos.jpg" alt="responsive image" class="img-thumbnail"></a>
-          <div class="container justify-content-end p-0 m-0">
-          <div id="selectDiv">
-            <label class="text-light" for="exampleFormControlSelect1">Select Repo</label>
-            <select v-model:value="selected"  class="form-control-sm m-1 p-1" id="exampleFormControlSelect1">
-               <option v-for="(rp, index) in repoList" :value="rp.name">\{{ rp.name }}</option>
-            </select> 
-            <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="syncRepo()">
-            <i class="fa fa-sync-alt" style="color: Dodgerblue;" aria-hidden="true"></i>
-            </button>
-            <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="syncRepo()">
-            <i v-bind:class="busyclass" style="color: Dodgerblue;" aria-hidden="true"></i>
-            </button>
-        </div>
-        </div>
+          <a class="navbar-brand m-0 p-0" href="#">
+            <img src="/images/anthos.jpg" alt="responsive image" class="img-thumbnail">
+          </a>
+          <div class="col-2"></div>
+          <div class="container  justify-content-end p-0 m-0">
+            <div id="selectDiv">
+                <label class="text-light" for="exampleFormControlSelect1">Select Repo</label>
+                <select v-model:value="selected"  class="form-control-sm m-1 p-1" id="exampleFormControlSelect1">
+                <option v-for="(rp, index) in repoList" :value="rp.name">\{{ rp.name }}</option>
+                </select> 
+                <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="syncRepo()">
+                <i class="fa fa-sync-alt" style="color: Dodgerblue;" aria-hidden="true"></i>
+                </button>
+                <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="syncRepo()">
+                <i v-bind:class="busyclass" style="color: Dodgerblue;" aria-hidden="true"></i>
+                </button>
+                <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="runNomos()">
+                <i class="fas fa-history" style="color: Dodgerblue;" aria-hidden="true"></i>
+                </button>
+            </div>
+          </div>
     </nav>
 
     {{{body}}}
@@ -68,6 +73,26 @@
             hideBusy() {
                 this.busyclass = "fas fa-cog fa-lg"
             },
+            runNomos() {
+            const vueObj = this;
+            const formData = new FormData();
+            formData.append('repoName', vueObj.selected);
+            vueObj.showBusy();
+            axios.post('/runNomos',
+                formData,
+                {
+                    headers: {
+                    'Content-Type': 'multipart/form-data',
+                    },
+                },
+            ).then((resp) => {
+                vueObj.appendLog(resp.data.stdout);
+                vueObj.hideBusy();
+            })
+                .catch(function(err) {
+                    window.alert(err);
+                });
+            },
             syncRepo() {
             const vueObj = this;
             const formData = new FormData();
@@ -101,7 +126,7 @@
             },
             appendLog(logstring) {
                 this.log.unshift(logstring);
-                this.log = this.log.slice(0,20);
+                this.log = this.log.slice(0,100);
             }
         },    
         created() {
