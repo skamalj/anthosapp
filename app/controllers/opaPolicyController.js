@@ -2,8 +2,8 @@
 const config = require('config');
 const {compileTemplateToRepo} = require('./anthosFSController');
 
-const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
-const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
+const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
+const TEMPLATE_PATH = `${config.get('BASE_PATH')}/templates/`;
 
 // Get parameter values from request object for a particulat policy
 const getValuesForPolicy = function(policy, path) {

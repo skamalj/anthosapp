@@ -32,6 +32,7 @@ Vue.component('repository',
               },
           ).then(function(resp) {
             globalobj.appendLog(resp.data);
+            globalobj.getRepoList();
           })
               .catch(function(err) {
                 window.alert(err);

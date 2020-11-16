@@ -118,7 +118,8 @@
                 axios.post('/getrepolist')
                 .then(function(res) {
                     vueObj.repoList = res.data;
-                    vueObj.selected = vueObj.repoList[0].name;
+                    if(res.data)
+                        vueObj.selected = vueObj.repoList[0].name;
                 })
                     .catch(function(err) {
                     window.alert(err);

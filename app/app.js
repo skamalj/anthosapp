@@ -2,6 +2,7 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const bodyParser = require('body-parser');
+const {init} = require('./controllers/anthosFSController');
 
 // set up handlebars view engine and express app
 const handlebars = require('express-handlebars').create({
@@ -11,6 +12,9 @@ const app = express();
 app.use(fileUpload());
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
+//Initialize data directories
+init();
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');

@@ -3,7 +3,7 @@
 const fs = require('fs');
 const config = require('config');
 
-const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
+const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
 
 // Handler for dirtree request from frontend.
 const repoTree = async function(req, res) {

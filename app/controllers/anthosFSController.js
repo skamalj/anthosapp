@@ -10,14 +10,11 @@ const yaml = require('yaml');
 const readFilePromise = util.promisify(fs.readFile);
 
 // Configurations are set in /config app directory in default.json
-const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
-const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
-const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
+const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
+const KUBE_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/kube/`;
+const GIT_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/git/`;
 const SSH_CONFIG_FILE = `${config.get('HOME')}/.ssh/config`;
-const TEMPLATE_PATH = `${config.get('HOME')}/templates/`;
-
-// Initialize git
-const git = simpleGit(GIT_REPO_BASEPATH, {binary: 'git'});
+const TEMPLATE_PATH = `${config.get('BASE_PATH')}/templates/`;
 
 // Convert request objects to JSON strings for creating template results
 handlebars.registerHelper('json', function(obj) {
@@ -26,9 +23,9 @@ handlebars.registerHelper('json', function(obj) {
 
 const init = function() {
   try {
-    fs.mkdirSync(GIT_REPO_BASEPATH);
-    fs.mkdirSync(KUBE_CONFIG_BASEPATH);
-    fs.mkdirSync(GIT_CONFIG_BASEPATH);
+    fs.mkdirSync(GIT_REPO_BASEPATH,{ recursive: true });
+    fs.mkdirSync(KUBE_CONFIG_BASEPATH,{ recursive: true });
+    fs.mkdirSync(GIT_CONFIG_BASEPATH,{ recursive: true });
   } catch (err) {
     if (err.code === 'EEXIST') {
       return;
@@ -119,8 +116,15 @@ const updateSSHConfig = async function(req, filepath) {
         console.log(`Could not update SSH Config for repo ${req.body.repoName}: ${err}`);
         reject(new Error(`Could not update SSH Config`));
       } else {
-        console.log(`SSH Config updated for repo ${req.body.repoName}`);
-        resolve();
+        fs.chmod(filepath, fs.constants.S_IRUSR, (err) => {
+          if (err) {
+            console.log(`Could not change permission for SSH identity for repo ${req.body.repoName}: ${err}`);
+            reject(new Error(`Could not update permissions for SSH Identity`));
+          } else {
+            console.log(`SSH Config updated for repo ${req.body.repoName}`);
+            resolve();
+          }
+        })
       }
     });
   });
@@ -135,6 +139,9 @@ const initializeGitRepo = async function(req) {
   const hostname = req.body.repo.match(re)[1];
   const host = `${req.body.repoName}-${hostname}`;
   const gitrepo = req.body.repo.replace(hostname, host);
+
+  // Initialize git
+  const git = simpleGit(GIT_REPO_BASEPATH, {binary: 'git'});
 
   return new Promise(async (resolve, reject) => {
     await git.cwd(GIT_REPO_BASEPATH).clone(gitrepo, req.body.repoName)
@@ -166,6 +173,9 @@ const initializeGitRepo = async function(req) {
 
 // Commit and push the changes
 const syncGitRepo = async function(repoPath) {
+  // Initialize git
+  const git = simpleGit(GIT_REPO_BASEPATH, {binary: 'git'});
+
   return new Promise((resolve, reject) => {
     git.cwd(repoPath)
         .add('./*')
