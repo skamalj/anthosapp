@@ -6,11 +6,12 @@ const handlebars = require('handlebars');
 const yaml = require('yaml');
 const {compileTemplateToRepo, saveFile, getObjectYaml} = require('./anthosFSController');
 
-const OPERATOR_PATH = config.get('OPERATOR_PATH');
+
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
 const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
+const OPERATOR_PATH = `${config.get('HOME')}/.anthos-operator/config-management-operator.yaml`;
 
 // This creates git secret, details of which it gets from save gitconfig file,
 // then deploys config operator to the cluster, see the use of --kubeconfig flag to

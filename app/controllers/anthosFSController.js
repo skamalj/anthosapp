@@ -13,8 +13,8 @@ const readFilePromise = util.promisify(fs.readFile);
 const GIT_REPO_BASEPATH = config.get('GIT_REPO_BASEPATH');
 const KUBE_CONFIG_BASEPATH = config.get('KUBE_CONFIG_BASEPATH');
 const GIT_CONFIG_BASEPATH = config.get('GIT_CONFIG_BASEPATH');
-const SSH_CONFIG_FILE = config.get('SSH_CONFIG_FILE');
-const TEMPLATE_PATH = config.get('TEMPLATE_PATH');
+const SSH_CONFIG_FILE = `${config.get('HOME')}/.ssh/config`;
+const TEMPLATE_PATH = `${config.get('HOME')}/templates/`;
 
 // Initialize git
 const git = simpleGit(GIT_REPO_BASEPATH, {binary: 'git'});
@@ -23,6 +23,19 @@ const git = simpleGit(GIT_REPO_BASEPATH, {binary: 'git'});
 handlebars.registerHelper('json', function(obj) {
   return JSON.stringify(obj);
 });
+
+const init = function() {
+  try {
+    fs.mkdirSync(GIT_REPO_BASEPATH);
+    fs.mkdirSync(KUBE_CONFIG_BASEPATH);
+    fs.mkdirSync(GIT_CONFIG_BASEPATH);
+  } catch (err) {
+    if (err.code === 'EEXIST') {
+      return;
+    }
+    throw err;
+  }
+};
 
 // Create kubeconfig file. One file per cluster is created and clustername is filename.
 const saveAnthosConfig = async function(req, res) {
@@ -203,7 +216,7 @@ const listGitRepos = async function(req, res) {
       })
       .catch((err) => {
         console.log(`Repolist could not be generated: ${err}`);
-        return res.status(500).send('Repolist could not be generated');
+        return res.status(200).send([]);
       });
 };
 
@@ -288,6 +301,7 @@ const getObjectYaml = function(fpath) {
 };
 
 module.exports = {
+  init: init,
   saveAnthosConfig: saveAnthosConfig,
   saveGitRepo: saveGitRepo,
   listGitRepos: listGitRepos,
