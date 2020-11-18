@@ -191,6 +191,26 @@ const createClusterRole = async function(req, res) {
       });
 };
 
+// Create manifest for clusterrole
+const createClusterRoleBinding = async function(req, res) {
+  const values = {CLUSTER_ROLE_BINDING: req.body.clusterrolebinding, CLUSTER_SELECTOR: req.body.clusterselector,
+    CLUSTER_ROLE: req.body.clusterrole, SUBJECTS: JSON.parse(req.body.subjects)};
+
+  const template = `${TEMPLATE_PATH}clusterrolebinding.tpl`;
+  let repolocation = `${GIT_REPO_BASEPATH }${req.body.repoName}/cluster`;
+  repolocation = `${repolocation}/${req.body.clusterrolebinding}.yaml`;
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Cluster role binding saved: ${result}`);
+        return res.status(200).send(`Cluster role ${req.body.clusterrolebinding} saved`);
+      })
+      .catch((err) => {
+        console.log(`Clusterrolebinding ${req.body.clusterrolebinding} not saved: ${err}`);
+        return res.status(500).send(`Clusterrolebinding not saved for binding ${req.body.clusterrolebinding}`);
+      });
+};
+
 // Upload  cluster object manisfet, this is to use for object where there is no template.
 // Saves the file in "cluster" directory
 const uploadClusterObjectYaml = async function(req, res) {
@@ -228,6 +248,7 @@ module.exports = {
   getClusters: getClusters,
   labelCluster: labelCluster,
   createClusterRole: createClusterRole,
+  createClusterRoleBinding: createClusterRoleBinding,
   createClusterSelector: createClusterSelector,
   uploadClusterObjectYaml: uploadClusterObjectYaml,
   runNomos: runNomos,

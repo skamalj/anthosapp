@@ -248,6 +248,37 @@ const createDeployment = async function(req, res) {
       });
 };
 
+// Create manifest for role
+const createRole = async function(req, res) {
+
+  const values = {ROLE_NAME: req.body.role, RULES: JSON.parse(req.body.rules)};
+
+  values.SELECTORS = [];
+  if (req.body.clusterselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'cluster-selector', CLUSTER_SELECTOR: req.body.clusterselector});
+  }
+  if (req.body.namespaceselector) {
+    values.SELECTORS.push({CLUSTER_TYPE: 'namespace-selector', CLUSTER_SELECTOR: req.body.namespaceselector});
+  }
+
+  // Set template
+  const template = `${TEMPLATE_PATH}role.tpl`;
+
+  // Set filelocation and name for selector
+  let repolocation = req.body.nscontext;
+  repolocation = `${repolocation}${req.body.role}.yaml`;
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Role saved: ${result}`);
+        return res.status(200).send(`Role ${req.body.role} saved`);
+      })
+      .catch((err) => {
+        console.log(`Role ${req.body.role} not saved: ${err}`);
+        return res.status(500).send(`Role not saved for ${req.body.role}`);
+      });
+};
+
 
 module.exports = {
   createNamespace: createNamespace,
@@ -259,4 +290,5 @@ module.exports = {
   createDefaultNetworkPolicy: createDefaultNetworkPolicy,
   createResourceQuotas: createResourceQuotas,
   createDeployment: createDeployment,
+  createRole: createRole,
 };

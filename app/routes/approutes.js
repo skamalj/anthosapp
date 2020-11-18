@@ -7,6 +7,7 @@ const repotreectrl = require('../controllers/repoTreeController.js');
 const namespacectrl = require('../controllers/namespaceController.js');
 const opapolicyctrl = require('../controllers/opaPolicyController.js');
 const securitytoolsctrl = require('../controllers/toolsController.js');
+const clusterConfigController = require('../controllers/clusterConfigController.js');
 
 module.exports = function(app) {
   app.get('/', function(req, res) {
@@ -30,6 +31,7 @@ module.exports = function(app) {
   app.post('/uploadClusterObjectYaml', clusterconfigctrl.uploadClusterObjectYaml);
   app.post('/runNomos', clusterconfigctrl.runNomos);
   app.post('/getClusterLabels', clusterconfigctrl.getClusterLabels);
+  app.post('/createClusterRoleBinding', clusterconfigctrl.createClusterRoleBinding)
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);
@@ -40,6 +42,7 @@ module.exports = function(app) {
   app.post('/createDefaultNetworkPolicy', namespacectrl.createDefaultNetworkPolicy);
   app.post('/createResourceQuotas', namespacectrl.createResourceQuotas);
   app.post('/createDeployment', namespacectrl.createDeployment);
+  app.post('/createRole', namespacectrl.createRole);
 
   app.post('/createGeneralOPAPolicies', opapolicyctrl.createGeneralOPAPolicies);
 

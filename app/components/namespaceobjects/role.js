@@ -1,11 +1,12 @@
 /* eslint-disable max-len */
 export default
-Vue.component('clusterRole',
+Vue.component('role',
     {
       data: function() {
         return {
-          clusterrole: '',
+          role: '',
           clusterselector: '',
+          namespaceselector: '',
           apigroups: '',
           resources: '',
           rules: [],
@@ -13,6 +14,7 @@ Vue.component('clusterRole',
           permissionarray: [],
         };
       },
+      props: ['nscontext'],
       methods: {
         addNewRule: function() {
           const newRule = {};
@@ -26,12 +28,17 @@ Vue.component('clusterRole',
           this.resources = '';
           this.permissionarray = [];
         },
-        createClusterRole() {
+        createRole() {
           const vueObj = this;
           this.repoName = globalobj.selected;
           const formData = new FormData();
-          Object.keys(this.$data).forEach( (key) => formData.append(key, JSON.stringify(this.$data[key])));
-          axios.post('/createClusterRole',
+          formData.append('nscontext', vueObj.nscontext);
+          formData.append('rules', JSON.stringify(vueObj.rules));
+          Object.keys(this.$data).forEach( (key) => {
+            if (key != 'rules')
+            formData.append(key, this.$data[key])
+          });
+          axios.post('/createRole',
               formData,
               {
                 headers: {
@@ -41,7 +48,7 @@ Vue.component('clusterRole',
           ).then(function(resp) {
             globalobj.appendLog(resp.data);
             vueObj.refreshClusterTree();
-            vueObj.clusterrole = '';
+            vueObj.role = '';
             vueObj.rules = [];
           })
               .catch(function(err) {
@@ -49,7 +56,7 @@ Vue.component('clusterRole',
               });
         },
         refreshClusterTree() {
-          this.$parent.$refs.clusterdirtree.refresh();
+          this.$parent.$refs.namespacetree.refresh();
         },
       },
       template: ` \
@@ -58,7 +65,10 @@ Vue.component('clusterRole',
               <input  class="form-control" type="text" placeholder="Cluster Selector" v-model:value="clusterselector"> \
             </div> \
             <div  class="container m-3"> \
-                <input  class="form-control" type="text" placeholder="Clusterrole Name" v-model:value="clusterrole"> \
+              <input  class="form-control" type="text" placeholder="Namespace Selector" v-model:value="namespaceselector"> \
+            </div> \
+            <div  class="container m-3"> \
+                <input  class="form-control" type="text" placeholder="Role Name" v-model:value="role"> \
             </div> \ 
             <div  class="row  d-flex m-3 p-0"> \
                 <div class="col-5">
@@ -138,8 +148,9 @@ Vue.component('clusterRole',
               </div> \
             </template>  
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-if="clusterrole && rules.length > 0" v-on:click="createClusterRole()">Submit</button> \
+                <button type="button" class="btn btn-dark" :disabled="!(nscontext && role && rules.length > 0)" v-on:click="createRole()">Submit</button> \
             </div>  
+            <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5> 
         </div>`,
     },
 );

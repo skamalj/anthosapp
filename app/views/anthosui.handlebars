@@ -3,9 +3,9 @@
   All new components, main or child, should be registered on this page and linked to routes.
   Except routing, nothing else dynamic happens on this page.
 -->
-<div id="app" class="container-fluid m-2 p-0">
+<div id="app" class="container-fluid mr-2 ml-0 mb-2 mt-2 p-0">
   <div class="row m-0 p-0 align-top">
-    <div class="align-top col-2 p-0">
+    <div class="align-top btn-sm col-2 p-0">
       <div class="container m-0 p-0">
         <button type="button" data-toggle="collapse" href="#configmgmt"
           class="btn-block rounded-top btn-dark text-left dropdown-toggle text-info pl-1">ConfigMgmt</button>
@@ -77,11 +77,13 @@
   import NSObjectYaml from './components/namespaceobjects/nsobjectyaml.js';
   import NamespaceSelector from './components/namespaceobjects/namespaceselector.js';
   import ResourceQuotas from './components/namespaceobjects/resourcequotas.js';
+  import Role from './components/namespaceobjects/role.js';
   import DeployImage from './components/namespaceobjects/deployimage.js';
 
   import ClusterObj from './components/ClusterObj.js';
   import LabelCluster from './components/clusterobjects/clusterLabel.js';
   import ClusterRole from './components/clusterobjects/clusterRole.js'; 
+  import ClusterRoleBinding from './components/clusterobjects/clusterrolebinding.js'; 
   import ClusterSelector from './components/clusterobjects/ClusterSelector.js'; 
   import ClusterObjectYaml from './components/clusterobjects/clusterobjectyaml.js';
 
@@ -109,6 +111,7 @@
       { path: 'NamespaceSelector', component: NamespaceSelector, name: 'NamespaceSelector' },
       { path: 'ObjectYaml', component: NSObjectYaml, name: 'ObjectYaml' },
       { path: 'ResourceQuotas', component: ResourceQuotas, name: 'ResourceQuotas' },
+      { path: 'Role', component: Role, name: 'Role' },
       { path: 'DeployImage', component: DeployImage, name: 'DeployImage' },
       ]
     },
@@ -117,6 +120,7 @@
       { path: '', redirect: 'ClusterLabel'},
       { path: 'ClusterLabel', component: LabelCluster },
       { path: 'ClusterRole', component: ClusterRole },
+      { path: 'ClusterRoleBinding', component: ClusterRoleBinding },
       { path: 'ClusterSelector', component: ClusterSelector },
       { path: 'ClusterObjectManifest', component: ClusterObjectYaml },
       ]

@@ -7,7 +7,7 @@ Vue.component('NamespaceObj',
       data: function() {
         return {
           repoName: '',
-          typeList: ['Namespace', 'NamespaceSelector', 'ResourceQuotas', 'DeployImage', 'ObjectYaml'],
+          typeList: ['Namespace', 'NamespaceSelector', 'ResourceQuotas', 'Role', 'DeployImage', 'ObjectYaml'],
           selectedType: 'Namespace',
           nsselectedcontext: '',
           filecontent: '',
@@ -52,7 +52,7 @@ Vue.component('NamespaceObj',
         </div>
       </div>        
         <div class="row">
-          <div class="col-4 m-0 p-0">
+          <div class="col-5 m-0 p-0">
             <dirtree hidenamespace=false :repoName="globalobj.selected" ref="namespacetree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
           </div>
           <div class="col-7 m-0 pr-3">

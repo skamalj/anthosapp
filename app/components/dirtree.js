@@ -90,7 +90,7 @@ Vue.component('dirtree',
               <template v-if="f.type === 'file'">
                 <li class="list-group-item list-group-item py-0 border-0" :key="f.name">
                   <i class="fa fa-file" aria-hidden="true"></i>
-                  <span v-on:click="filecontentevent(f.path)">{{ f.name }}</span>
+                  <span v-on:click="filecontentevent(f.path)"><small>{{ f.name }}</small></span>
                   <button type="button m-0 p-0" class="btn btn-sm btn-light" v-on:click="deletefile(f.path)">
                   <i class="fas fa-minus-circle" aria-hidden="true"></i>
                   </button>

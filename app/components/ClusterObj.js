@@ -7,7 +7,7 @@ Vue.component('clusterObj',
       data: function() {
         return {
           repoName: '',
-          typeList: ['ClusterLabel', 'ClusterSelector', 'ClusterRole', 'ClusterObjectManifest'],
+          typeList: ['ClusterLabel', 'ClusterSelector', 'ClusterRole', 'ClusterRoleBinding', 'ClusterObjectManifest'],
           selectedType: 'ClusterLabel',
           filecontent: '',
         };
