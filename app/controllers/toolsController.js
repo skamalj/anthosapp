@@ -43,7 +43,33 @@ const setupSysdig = async function(req, res) {
       });
 };
 
+// Create grafana instance
+const setupGrafana = async function(req, res) {
+  const template = `${TEMPLATE_PATH}GRAFANA/grafana.tpl`;
+  console.log(req.body.username);
+
+  const values = {
+    STORAGE_SIZE: req.body.storagesize, BASE64_USER: Buffer.from(req.body.username,'utf-8').toString('base64'),
+    BASE64_PASSWORD: Buffer.from(req.body.password,'utf-8').toString('base64'), 
+    RUN_AS_USER_ID: req.body.runasuserid, SERVICE_PORT: req.body.serviceport, 
+    CPU_LIMIT: req.body.cpulimit, MEMORY_LIMIT: req.body.memorylimit
+  }
+
+  const nsdir = req.body.nscontext;
+  const repolocation = `${nsdir}grafana.yaml`;
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Grafana instance created: ${result}`);
+        res.status(200).send(`Grafana instance created`);
+      })
+      .catch((err) => {
+        console.log(`Grafana instance not created: ${err}`);
+        res.status(500).send(`Grafana instance not created`);
+      });
+};
 
 module.exports = {
   setupSysdig: setupSysdig,
+  setupGrafana: setupGrafana,
 };

@@ -78,6 +78,7 @@
   import NamespaceSelector from './components/namespaceobjects/namespaceselector.js';
   import ResourceQuotas from './components/namespaceobjects/resourcequotas.js';
   import Role from './components/namespaceobjects/role.js';
+  import RoleBinding from './components/namespaceobjects/rolebinding.js';
   import DeployImage from './components/namespaceobjects/deployimage.js';
 
   import ClusterObj from './components/ClusterObj.js';
@@ -112,6 +113,7 @@
       { path: 'ObjectYaml', component: NSObjectYaml, name: 'ObjectYaml' },
       { path: 'ResourceQuotas', component: ResourceQuotas, name: 'ResourceQuotas' },
       { path: 'Role', component: Role, name: 'Role' },
+      { path: 'RoleBinding', component: RoleBinding, name: 'RoleBinding' },
       { path: 'DeployImage', component: DeployImage, name: 'DeployImage' },
       ]
     },
@@ -148,7 +150,7 @@
     {
       path: '/ObserveToolsObj', component: ObserveToolsObj, name: 'ObserveToolsObj', children: [
       { path: '', redirect: 'Grafana' },
-      { path: 'Grafana', component: Sysdig, name: 'Grafana' },
+      { path: 'Grafana', component: Grafana, name: 'Grafana' },
       ]
     },
   ]

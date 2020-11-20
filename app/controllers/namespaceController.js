@@ -4,7 +4,6 @@ const fs = require('fs');
 const config = require('config');
 const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
 const TEMPLATE_PATH = `${config.get('BASE_PATH')}/templates/`;
-
 const anthosfs = require('./anthosFSController');
 const {compileTemplateToRepo, saveFile} = require('./anthosFSController');
 
@@ -279,6 +278,26 @@ const createRole = async function(req, res) {
       });
 };
 
+// Create manifest for rolebinding
+const createRoleBinding = async function(req, res) {
+  const values = {ROLE_BINDING: req.body.rolebinding, CLUSTER_SELECTOR: req.body.clusterselector,
+    NAMESPACE_SELECTOR: req.body.namespaceselector,ROLE: req.body.role, 
+    SUBJECTS: JSON.parse(req.body.subjects)};
+
+  const template = `${TEMPLATE_PATH}rolebinding.tpl`;
+  let repolocation = `${req.body.nscontext}/${req.body.rolebinding}.yaml`;
+
+  compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Role binding saved: ${result}`);
+        return res.status(200).send(`Role ${req.body.rolebinding} saved`);
+      })
+      .catch((err) => {
+        console.log(`Rolebinding ${req.body.rolebinding} not saved: ${err}`);
+        return res.status(500).send(`Rolebinding not saved for binding ${req.body.rolebinding}`);
+      });
+};
+
 
 module.exports = {
   createNamespace: createNamespace,
@@ -291,4 +310,5 @@ module.exports = {
   createResourceQuotas: createResourceQuotas,
   createDeployment: createDeployment,
   createRole: createRole,
+  createRoleBinding: createRoleBinding,
 };

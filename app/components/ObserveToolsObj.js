@@ -52,7 +52,7 @@ Vue.component('ObserveToolsObj',
         </div>
       </div>        
         <div class="row">
-          <div class="col-4 m-0 p-0">
+          <div class="col-5 m-0 p-0">
             <dirtree hidenamespace=false :repoName="globalobj.selected" ref="observetoolstree" @filecontentevent="showfilemodal" @nscontext="setnscontext"></dirtree>
           </div>
           <div class="col-7 m-0 pr-3">

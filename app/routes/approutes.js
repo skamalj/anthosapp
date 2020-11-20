@@ -43,10 +43,12 @@ module.exports = function(app) {
   app.post('/createResourceQuotas', namespacectrl.createResourceQuotas);
   app.post('/createDeployment', namespacectrl.createDeployment);
   app.post('/createRole', namespacectrl.createRole);
+  app.post('/createRoleBinding', namespacectrl.createRoleBinding);
 
   app.post('/createGeneralOPAPolicies', opapolicyctrl.createGeneralOPAPolicies);
 
   app.post('/setupSysdig', securitytoolsctrl.setupSysdig);
+  app.post('/setupGrafana', securitytoolsctrl.setupGrafana);
 
   // 404
   app.use(function(req, res, next) {
