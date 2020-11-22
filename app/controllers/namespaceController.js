@@ -91,6 +91,42 @@ const uploadObjectYaml = async function(req, res) {
       });
 };
 
+const createSecret = function(req, res) {
+  const nsdir = req.body.nscontext;
+  var template;
+  var repolocation;
+  var values = {SECRET_NAME: req.body.secretname};
+  console.log(typeof(req.body.datarows));
+
+  if (req.body.secrettype == 'dockerConfig') {
+    template = `${TEMPLATE_PATH}SECRETS/dockerconfig.tpl`;
+    repolocation = `${nsdir}${req.body.secretname}-docker-secret.yaml`;
+    values.DOCKER_CONFIG = req.files.configjson.data.toString('base64');
+  } else if (req.body.secrettype == 'tls') {
+    template = `${TEMPLATE_PATH}SECRETS/tls.tpl`;
+    repolocation = `${nsdir}${req.body.secretname}-tls.yaml`;
+    values.CRT_FILE = req.files.crtfile.data.toString('base64');
+    values.KEY_FILE = req.files.keyfile.data.toString('base64');
+  } else if (req.body.secrettype == 'generic') {
+    template = `${TEMPLATE_PATH}SECRETS/generic.tpl`;
+    repolocation = `${nsdir}${req.body.secretname}-generic.yaml`;
+    values.DATA = {};
+    JSON.parse(req.body.datarows).forEach(d => Object.keys(d).forEach(k => {
+      values.DATA[k] = Buffer.from(d[k],'utf-8').toString('base64');
+    }))
+  }
+
+  anthosfs.compileTemplateToRepo(template, values, repolocation)
+      .then((result) => {
+        console.log(`Secret saved: ${result}`);
+        res.status(200).send(`Secret saved: ${values.SECRET_NAME}`);
+      })
+      .catch((err) => {
+        console.log(`Secret not saved: ${err}`);
+        res.status(500).send(`Secret not saved: ${values.SECRET_NAME}`);
+      });
+};
+
 // Create network policy. This is used for both egress and ingress policies
 const createNetworkPolicy = async function(req, res) {
   const template = `${TEMPLATE_PATH}custom-network-policy.tpl`;
@@ -311,4 +347,5 @@ module.exports = {
   createDeployment: createDeployment,
   createRole: createRole,
   createRoleBinding: createRoleBinding,
+  createSecret: createSecret,
 };

@@ -5,8 +5,8 @@ Vue.component('generalpolicyobjects',
       data: function() {
         return {
           policytypes: [
-            {name: 'K8sContainerLimits', desc: 'Mandates specifying limits in containers and witihin specified values'},
-            {name: 'K8sRequiredLabels', desc: 'Mandates specifying specified  label key, value to k8s objects'},
+            {name: 'K8sContainerLimits', desc: 'Mandates specifying limits in containers'},
+            {name: 'K8sRequiredLabels', desc: 'Enforce specified labels on k8s objects'},
           ],
           selectedpolicytype: '',
           clusterselector: '',

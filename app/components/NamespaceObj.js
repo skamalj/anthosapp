@@ -7,7 +7,7 @@ Vue.component('NamespaceObj',
       data: function() {
         return {
           repoName: '',
-          typeList: ['Namespace', 'NamespaceSelector', 'ResourceQuotas', 'Role', 'RoleBinding', 'DeployImage', 'ObjectYaml'],
+          typeList: ['Namespace', 'NamespaceSelector', 'ResourceQuotas', 'Role', 'RoleBinding', 'Secret', 'DeployImage', 'ObjectYaml'],
           selectedType: 'Namespace',
           nsselectedcontext: '',
           filecontent: '',

@@ -71,7 +71,7 @@ Vue.component('deployimage',
             </div> \   
             <div class="row m-1 justify-content-end"> \
                 <button type="button" class="btn btn-dark" v-on:click="createDeployment()" 
-                :disabled="!(nscontext && deploymentname && (replicas || image || port ))">Submit</button> \
+                :disabled="!(nscontext && deploymentname && replicas && image && port ))">Submit</button> \
             </div>  
             <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5> 
         </div>`,

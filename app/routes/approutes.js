@@ -43,6 +43,7 @@ module.exports = function(app) {
   app.post('/createResourceQuotas', namespacectrl.createResourceQuotas);
   app.post('/createDeployment', namespacectrl.createDeployment);
   app.post('/createRole', namespacectrl.createRole);
+  app.post('/createSecret', namespacectrl.createSecret);
   app.post('/createRoleBinding', namespacectrl.createRoleBinding);
 
   app.post('/createGeneralOPAPolicies', opapolicyctrl.createGeneralOPAPolicies);

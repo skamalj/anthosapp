@@ -21,6 +21,7 @@ handlebars.registerHelper('json', function(obj) {
   return JSON.stringify(obj);
 });
 
+// Create initial data directories for use by the tool. No action, if directories exists.
 const init = function() {
   try {
     fs.mkdirSync(GIT_REPO_BASEPATH,{ recursive: true });
@@ -35,6 +36,7 @@ const init = function() {
 };
 
 // Create kubeconfig file. One file per cluster is created and clustername is filename.
+// The file is used by multiple operators - Ex. config as well as connect.
 const saveAnthosConfig = async function(req, res) {
   if (req.body.credoption === 'token') {
     try {
@@ -171,7 +173,10 @@ const initializeGitRepo = async function(req) {
   });
 };
 
-// Commit and push the changes
+// Commit and push the changes.
+// ToDo: There is a problem with this peice, it needs to behave differently based on if the remote 
+// is empty or not. Git pull is required at start to ensure, sync is complete.  But this fails on 
+// empty directory.  Need to wrap pull() call in custom function and then call it before add().
 const syncGitRepo = async function(repoPath) {
   // Initialize git
   const git = simpleGit(GIT_REPO_BASEPATH, {binary: 'git'});
@@ -300,6 +305,7 @@ const execSyncRepo = async function(req, res) {
       });
 };
 
+// Helper function to read  manisfest file
 const getObjectYaml = function(fpath) {
   try {
     const yamlfile = fs.readFileSync(fpath, 'utf8');

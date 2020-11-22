@@ -61,12 +61,14 @@ Vue.component('role',
       },
       template: ` \
         <div class="container"> \
+            <h5><span class="badge badge-default">Selector:</span></h5>
             <div  class="container m-3"> \
               <input  class="form-control" type="text" placeholder="Cluster Selector" v-model:value="clusterselector"> \
             </div> \
             <div  class="container m-3"> \
               <input  class="form-control" type="text" placeholder="Namespace Selector" v-model:value="namespaceselector"> \
             </div> \
+            <h5><span class="badge badge-default">Role Definition:</span></h5>
             <div  class="container m-3"> \
                 <input  class="form-control" type="text" placeholder="Role Name" v-model:value="role"> \
             </div> \ 
