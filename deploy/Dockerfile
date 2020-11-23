@@ -25,9 +25,9 @@ WORKDIR $HOME/google-cloud-sdk
 COPY --chown=node:node --from=BASEGCLOUD /home/node/google-cloud-sdk/lib  lib/
 
 RUN mkdir $HOME/.ssh
-
+RUN ls -l
 WORKDIR $HOME
-COPY --chown=node:node anthos-app/app app/
+COPY --chown=node:node app app/
 WORKDIR $HOME/app
 
 # Initializue global git user for git operations
