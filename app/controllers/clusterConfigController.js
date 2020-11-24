@@ -132,6 +132,8 @@ const getClusters = async function(req, res) {
   }
 };
 
+// ToDo: Delete cluster
+
 // Returns mapping of which cluster resource is attached to which repository
 const getRepoClusterMapping = function() {
   return new Promise(async (resolve, reject) => {
