@@ -138,7 +138,7 @@ Vue.component('clusterRole',
               </div> \
             </template>  
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-if="clusterrole && rules.length > 0" v-on:click="createClusterRole()">Submit</button> \
+                <button type="button" class="btn btn-dark" :disabled="!(clusterrole && rules.length > 0)" v-on:click="createClusterRole()">Submit</button> \
             </div>  
         </div>`,
     },

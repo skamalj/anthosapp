@@ -4,3 +4,12 @@ steps:
 
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/anthos-app']
+
+- name: "gcr.io/cloud-builders/gke-deploy"
+  args:
+  - run
+  - --filename=deploy/deployment.yaml
+  - --image=gcr.io/$PROJECT_ID/anthos-app
+  - --location=us-central1-c
+  - --cluster=gke-pvt-2
+  - --namespace=anthosapp

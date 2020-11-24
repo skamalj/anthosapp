@@ -49,10 +49,13 @@ const setupGrafana = async function(req, res) {
   console.log(req.body.username);
 
   const values = {
-    STORAGE_SIZE: req.body.storagesize, BASE64_USER: Buffer.from(req.body.username,'utf-8').toString('base64'),
+    STORAGE_SIZE: req.body.storagesize ? req.body.storagesize : "10Gi", 
+    BASE64_USER: Buffer.from(req.body.username,'utf-8').toString('base64'),
     BASE64_PASSWORD: Buffer.from(req.body.password,'utf-8').toString('base64'), 
-    RUN_AS_USER_ID: req.body.runasuserid, SERVICE_PORT: req.body.serviceport, 
-    CPU_LIMIT: req.body.cpulimit, MEMORY_LIMIT: req.body.memorylimit
+    RUN_AS_USER_ID: req.body.runasuserid ? req.body.runasuserid : "472", 
+    SERVICE_PORT: req.body.serviceport ? req.body.serviceport : "80", 
+    CPU_LIMIT: req.body.cpulimit ? req.body.cpulimit : "200m", 
+    MEMORY_LIMIT: req.body.memorylimit ? req.body.memorylimit : "300Mi"
   }
 
   const nsdir = req.body.nscontext;

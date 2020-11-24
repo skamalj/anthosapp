@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: phlox-vol
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: phlox
+  labels:
+    app: phlox
+    service: phlox
+spec:
+  selector:
+    app: phlox
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phlox
+  labels:
+    name: phlox
+    app: phlox
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: phlox
+      app: phlox
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: phlox
+        app: phlox
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: phlox
+          image: "gcr.io/wipro-gcp-parsnet-poc/anthos-app"
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 1500Mi
+              cpu: 1000m
+            limits:
+              memory: 1500Mi
+              cpu: 1000m
+          volumeMounts:
+            - name: "appnewdata"
+              mountPath: "/home/node/appnewdata"
+          ports:
+            - name: phlox
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: BASE_PATH
+              value: "/home/node/app"
+            - name: DATA_PATH
+              value: "/home/node/appnewdata"  
+      volumes:
+        - name: "appnewdata"
+          persistentVolumeClaim:
+            claimName: "phlox-vol"
+

@@ -59,13 +59,13 @@ Vue.component('grafana',
             <div  class="container m-3"> \
               <div class="row m-0 p-0">
                 <div class="col-4 m-0 p-0 pr-2">
-                  <input  class="form-control" type="text" placeholder="PV Storage Size"  v-model:value="storagesize"> \
+                  <input  class="form-control" type="text" placeholder="PV Storage Size (10Gi)"  v-model:value="storagesize"> \
                 </div>
                 <div class="col-4 m-0 p-0 pr-2">
-                  <input  class="form-control" type="text" placeholder="RUN As User ID"  v-model:value="runasuserid"> \
+                  <input  class="form-control" type="text" placeholder="RUN As User ID (472)"  v-model:value="runasuserid"> \
                 </div>
                 <div class="col-4 m-0 p-0">
-                  <input  class="form-control" type="text" placeholder="Service Port"  v-model:value="serviceport"> \
+                  <input  class="form-control" type="text" placeholder="Service Port (80)"  v-model:value="serviceport"> \
                 </div>
               </div>  
             </div> \
@@ -82,10 +82,10 @@ Vue.component('grafana',
             <div  class="container m-3"> \
               <div class="row m-0 p-0">
                 <div class="col-6 m-0 p-0 pr-2">
-                  <input  class="form-control" type="text" placeholder="CPU Limit"  v-model:value="cpulimit"> \
+                  <input  class="form-control" type="text" placeholder="CPU Limit (200m)"  v-model:value="cpulimit"> \
                 </div>
                 <div class="col-6 m-0 p-0">
-                  <input  class="form-control" type="text" placeholder="Memory Limit"  v-model:value="memorylimit"> \
+                  <input  class="form-control" type="text" placeholder="Memory Limit (300Mi)"  v-model:value="memorylimit"> \
                 </div>
               </div>  
             </div> \ 
