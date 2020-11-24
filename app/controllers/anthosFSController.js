@@ -49,6 +49,11 @@ const init = function() {
   } catch (err) {  
       console.log(`Could not restore SSH Config: ${err}`);
   }
+  try {
+    fs.chmodSync(SSH_CONFIG_FILE, fs.constants.S_IRUSR);
+  } catch (err) {  
+      console.log(`Could not restore SSH Config: ${err}`);
+  }
 };
 
 // Create kubeconfig file. One file per cluster is created and clustername is filename.
