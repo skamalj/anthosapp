@@ -14,6 +14,7 @@ const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
 const KUBE_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/kube/`;
 const GIT_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/git/`;
 const SSH_CONFIG_FILE = `${config.get('HOME')}/.ssh/config`;
+const SSH_CONFIG_BACKUP = `${config.get('DATA_PATH')}/sshconfig/`;
 const TEMPLATE_PATH = `${config.get('BASE_PATH')}/templates/`;
 
 // Convert request objects to JSON strings for creating template results
@@ -25,13 +26,28 @@ handlebars.registerHelper('json', function(obj) {
 const init = function() {
   try {
     fs.mkdirSync(GIT_REPO_BASEPATH,{ recursive: true });
+  } catch (err) {
+    if (err.code != 'EEXIST') throw err;
+  }
+  try {
     fs.mkdirSync(KUBE_CONFIG_BASEPATH,{ recursive: true });
+  } catch (err) {
+    if (err.code != 'EEXIST') throw err;
+  }
+  try {
     fs.mkdirSync(GIT_CONFIG_BASEPATH,{ recursive: true });
   } catch (err) {
-    if (err.code === 'EEXIST') {
-      return;
-    }
-    throw err;
+    if (err.code != 'EEXIST') throw err;
+  }
+  try {
+    fs.mkdirSync(SSH_CONFIG_BACKUP,{ recursive: true });
+  } catch (err) {
+    if (err.code != 'EEXIST') throw err;
+  }
+  try {
+    fs.copyFileSync(`${SSH_CONFIG_BACKUP}config`, SSH_CONFIG_FILE);
+  } catch (err) {  
+      console.log(`Could not restore SSH Config: ${err}`);
   }
 };
 
@@ -118,18 +134,25 @@ const updateSSHConfig = async function(req, filepath) {
         console.log(`Could not update SSH Config for repo ${req.body.repoName}: ${err}`);
         reject(new Error(`Could not update SSH Config`));
       } else {
-        fs.chmod(filepath, fs.constants.S_IRUSR, (err) => {
+        fs.copyFile(SSH_CONFIG_FILE, `${SSH_CONFIG_BACKUP}config`, (err) => {
           if (err) {
-            console.log(`Could not change permission for SSH identity for repo ${req.body.repoName}: ${err}`);
-            reject(new Error(`Could not update permissions for SSH Identity`));
+            console.log(`Could not backup SSH Config: ${err}`);
+            reject(new Error(`Could not backup SSH Config`));
           } else {
-            console.log(`SSH Config updated for repo ${req.body.repoName}`);
-            resolve();
+            fs.chmod(filepath, fs.constants.S_IRUSR, (err) => {
+              if (err) {
+                console.log(`Could not change permission for SSH identity for repo ${req.body.repoName}: ${err}`);
+                reject(new Error(`Could not update permissions for SSH Identity`));
+              } else {
+                console.log(`SSH Config updated for repo ${req.body.repoName}`);
+                resolve();
+              }
+            })
           }
         })
       }
-    });
-  });
+    })
+  })
 };
 
 // Clones the repository to local data directory and initializes it if empty/requested
