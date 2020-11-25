@@ -70,10 +70,10 @@ Vue.component('deployimage',
                 <input  class="form-control" type="text" placeholder="Service Port (Optional, if specified will create service)"  v-model:value="serviceport"> \
             </div> \   
             <div class="row m-1 justify-content-end"> \
-                <button type="button" class="btn btn-dark" v-on:click="createDeployment()" 
-                :disabled="!(nscontext && deploymentname && replicas && image && port ))">Submit</button> \
-            </div>  
-            <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5> 
+                <button type="button" class="btn btn-dark" v-on:click="createDeployment()" \
+                :disabled="!(nscontext && deploymentname && replicas && image && port)">Submit</button> \
+            </div>  \
+            <h5><span class="badge badge-default">Context:  {{ nscontext }}</span></h5> \
         </div>`,
     },
 );
