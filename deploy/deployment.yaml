@@ -36,6 +36,7 @@ spec:
         name: phlox
         app: phlox
     spec:
+      serviceAccountName: connect-sa
       terminationGracePeriodSeconds: 10
       securityContext:
         fsGroup: 1000
