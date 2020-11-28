@@ -33,6 +33,8 @@ module.exports = function(app) {
   app.post('/getClusterLabels', clusterconfigctrl.getClusterLabels);
   app.post('/createClusterRoleBinding', clusterconfigctrl.createClusterRoleBinding);
   app.post('/connectCluster',clusterconfigctrl.connectCluster);
+  app.post('/disconnectCluster',clusterconfigctrl.disconnectCluster);
+  app.post('/getConnectLoginToken',clusterconfigctrl.getConnectLoginToken);
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);

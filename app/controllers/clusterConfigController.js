@@ -59,6 +59,50 @@ const deployOperator = async function(req, res) {
       });
 };
 
+const createConnectLoginToken = function(clustername, username) {
+  const KSA_NAME = `${username}-hub-login-sa`;
+  const KUBECONFIG_CONTEXT = clustername;
+  const KUBECONFIG_PATH = `${KUBE_CONFIG_BASEPATH}${clustername}`;
+  const CHECK_IF_CLUSTER_SA_EXISTS_CMD = `KUBECONFIG=${KUBECONFIG_PATH} kubectl get sa -o custom-columns=Name:.metadata.name \
+  --field-selector=metadata.name=${KSA_NAME} --no-headers=true`;
+  const CREATE_KSA = `KUBECONFIG=${KUBECONFIG_PATH} kubectl create serviceaccount ${KSA_NAME}`;
+  const CREATE_VIEW_ROLE_BIND = `KUBECONFIG=${KUBECONFIG_PATH} kubectl create clusterrolebinding ${KSA_NAME}-view-bind \
+--clusterrole view --serviceaccount default:${KSA_NAME}`;
+  const CREATE_CONSOLE_READER_BIND = `KUBECONFIG=${KUBECONFIG_PATH} kubectl create clusterrolebinding ${KSA_NAME}-console-reader-bind \
+--clusterrole cloud-console-reader --serviceaccount default:${KSA_NAME}`;
+  const GET_KSA_SECRET_NAME = `KUBECONFIG=${KUBECONFIG_PATH} kubectl get serviceaccount ${KSA_NAME} \
+-o jsonpath='{$.secrets[0].name}'`;
+  const GET_SECRET_TOKEN = function(SECRET_NAME) { 
+    return `KUBECONFIG=${KUBECONFIG_PATH} kubectl get secret ${SECRET_NAME} -o jsonpath='{$.data.token}'`
+  };
+
+  return execCmd(CHECK_IF_CLUSTER_SA_EXISTS_CMD, 'kubectl')
+  .then((data) => KSA_NAME == data.trim())
+  .then((ksa_exists) => {
+    if(ksa_exists) {
+      return execCmd(GET_KSA_SECRET_NAME, 'kubectl')
+      .then((data) => execCmd(GET_SECRET_TOKEN(data.trim()), 'kubectl'))
+    } else {
+      return execCmd(CREATE_KSA, 'kubectl')
+      .then((data) => execCmd(CREATE_VIEW_ROLE_BIND, 'kubectl'))
+      .then((data) => execCmd(CREATE_CONSOLE_READER_BIND, 'kubectl'))
+      .then((data) => execCmd(GET_KSA_SECRET_NAME, 'kubectl'))
+      .then((data) => execCmd(GET_SECRET_TOKEN(data.trim()), 'kubectl'))
+    }
+  })
+}
+
+const getConnectLoginToken = function(req, res) {
+  createConnectLoginToken(req.body.clusterName, req.body.username)
+  .then((data) => {
+    token = data.trim();
+    return res.status(200).send(Buffer.from(token, 'base64').toString('utf-8'));
+  }).catch((err) => {
+    console.log(`Token not generated: ${err}`)
+    return res.status(500).send('Token could not be generated');
+
+  })
+}
 const connectCluster = function (req, res) {
   createHubSAJson()
   .then(() => deployConnectOperator(req.body.clusterName))
@@ -66,8 +110,25 @@ const connectCluster = function (req, res) {
     res.status(200).send(`Connect Operator deployed to ${req.body.clusterName}`);
   })
   .catch((err) => {
-    console.log(`Connect Operator deployed to ${req.body.clusterName}: ${err}`)
+    console.log(`Error: Connect Operator not deployed to ${req.body.clusterName}: ${err}`)
     res.status(200).send(`Error: Connect Operator not deployed to ${req.body.clusterName}`);
+  })
+};
+
+
+const disconnectCluster = function (req, res) {
+  deleteConnectOperator(req.body.clusterName)
+  .then(() => {
+    res.status(200).send(`Connect Operator delete from  ${req.body.clusterName}`);
+  })
+  .catch((err) => {
+    if(err.code == 'MEMBERSHIP_NOT_EXIST') {
+      console.log(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
+      res.status(200).send(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
+    } else {
+      console.log(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
+      res.status(200).send(`Error occurred when deleting connect operator from  ${req.body.clusterName}`);
+    }
   })
 };
 
@@ -80,7 +141,41 @@ const deployConnectOperator = function(clustername) {
   --kubeconfig=${KUBECONFIG_PATH} \
   --service-account-key-file=${CONNECT_SA_JSON_PATH}`;
 
-  return execCmd(DEPLOY_OPERATOR_CMD, 'Gcloud');
+  return checkIfConnectMembershipExists(clustername)
+        .then((data) => { return data.trim() == MEMBERSHIP_NAME})
+        .then((already_deployed) => {
+          if (!already_deployed) return execCmd(DEPLOY_OPERATOR_CMD, 'Gcloud');
+          else return;
+        })
+}
+
+const deleteConnectOperator = function(clustername) {
+  const MEMBERSHIP_NAME = `${clustername}-hub`;
+  const KUBECONFIG_CONTEXT = clustername;
+  const KUBECONFIG_PATH = `${KUBE_CONFIG_BASEPATH}${clustername}`;
+  const DELETE_OPERATOR_CMD = ` gcloud container hub memberships unregister ${MEMBERSHIP_NAME} \
+  --context ${KUBECONFIG_CONTEXT} --kubeconfig ${KUBECONFIG_PATH}`;
+
+  return checkIfConnectMembershipExists(clustername)
+        .then((data) => { return data.trim() == MEMBERSHIP_NAME})
+        .then((deployed) => {
+          if (deployed) return execCmd(DELETE_OPERATOR_CMD, 'Gcloud');
+          else {
+            let err = new Error(`Membership ${MEMBERSHIP_NAME} does not exist, nothing to delete`);
+            err.code = 'MEMBERSHIP_NOT_EXIST';
+            throw err;
+          }
+        })
+}
+
+const checkIfConnectMembershipExists = function(clustername) {
+  const FULL_MEMBERSHIP_NAME = function(PID) { return`projects/${PID}/locations/global/memberships/${clustername}-hub`}
+  const GET_GCP_PROJECT_ID = `gcloud config list --format 'value(core.project)'`;
+  const CHECK_IF_MEMBERSHIP_EXISTS =  function(PID) { return `gcloud container hub memberships list \
+  --filter='${FULL_MEMBERSHIP_NAME(PID)}' --format='value(name)'`}
+
+  return execCmd(GET_GCP_PROJECT_ID, 'Gcloud')
+        .then((data) => execCmd(CHECK_IF_MEMBERSHIP_EXISTS(data.trim()), 'Gcloud'));
 }
 
 const createHubSAJson = function() {
@@ -362,4 +457,6 @@ module.exports = {
   getClusterLabels: getClusterLabels,
   getRepoClusterMapping: getRepoClusterMapping,
   connectCluster: connectCluster,
+  disconnectCluster: disconnectCluster,
+  getConnectLoginToken: getConnectLoginToken,
 };
