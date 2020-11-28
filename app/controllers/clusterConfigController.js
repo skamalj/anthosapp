@@ -8,6 +8,7 @@ const {compileTemplateToRepo, saveFile, getObjectYaml} = require('./anthosFSCont
 
 
 // Configurations are set in /config app directory in default.json
+const CONNECT_SA_JSON_PATH = `${config.get('DATA_PATH')}/.config/connect-sa4.json`
 const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
 const KUBE_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/kube/`;
 const GIT_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/git/`;
@@ -44,10 +45,10 @@ const deployOperator = async function(req, res) {
   --kubeconfig ${KUBE_CONFIG_BASEPATH}${req.body.clusterName}`;
 
   // Now execute all the generated commands
-  runKubectl(deployOperator)
-      .then(() => runKubectl(gitsecret))
-      .then(()=> runKubectl(applyOperatorConfig))
-      .then(() => {
+  execCmd(deployOperator, 'Kubectl')
+      .then((data) => execCmd(gitsecret, 'Kubectl'))
+      .then((data)=> execCmd(applyOperatorConfig, 'Kubectl'))
+      .then((data) => {
         const msg = `Operator deployed successfully for cluster ${req.body.clusterName}`;
         res.status(200).send(msg);
       })
@@ -58,24 +59,95 @@ const deployOperator = async function(req, res) {
       });
 };
 
+const connectCluster = function (req, res) {
+  createHubSAJson()
+  .then(() => deployConnectOperator(req.body.clusterName))
+  .then(() => {
+    res.status(200).send(`Connect Operator deployed to ${req.body.clusterName}`);
+  })
+  .catch((err) => {
+    console.log(`Connect Operator deployed to ${req.body.clusterName}: ${err}`)
+    res.status(200).send(`Error: Connect Operator not deployed to ${req.body.clusterName}`);
+  })
+};
+
+const deployConnectOperator = function(clustername) {
+  const MEMBERSHIP_NAME = `${clustername}-hub`;
+  const KUBECONFIG_CONTEXT = clustername;
+  const KUBECONFIG_PATH = `${KUBE_CONFIG_BASEPATH}${clustername}`;
+  const DEPLOY_OPERATOR_CMD = ` gcloud container hub memberships register ${MEMBERSHIP_NAME} \
+  --context=${KUBECONFIG_CONTEXT} \
+  --kubeconfig=${KUBECONFIG_PATH} \
+  --service-account-key-file=${CONNECT_SA_JSON_PATH}`;
+
+  return execCmd(DEPLOY_OPERATOR_CMD, 'Gcloud');
+}
+
+const createHubSAJson = function() {
+  let PROJECT_ID = '';
+  const MEMBERSHIP_SA = 'membership-sa4';
+  const MEMBERSHIP_SA_EMAIL = function(PID) { return `${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com` }
+  const CHECK_HUB_SA_EXISTS = function(PID) {return `gcloud iam service-accounts list \
+  --filter="email=${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com" --format "value(email)"`}
+  const GET_GCP_PROJECT_ID = `gcloud config list --format 'value(core.project)'`;
+  const CREATE_HUB_SA_GC_CMD = function(PID) { return `gcloud iam service-accounts create ${MEMBERSHIP_SA} --project=${PID}` }
+  const BIND_ROLE_TO_HUB_SA = function(PID) { return `gcloud projects add-iam-policy-binding ${PID} \
+  --member="serviceAccount:${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com" --role="roles/gkehub.connect"` }
+  const CREATE_HUB_SA_JSON= function(PID) { return `gcloud iam service-accounts keys create ${CONNECT_SA_JSON_PATH} \
+  --iam-account=${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com  --project=${PID}` }
+  
+  return new Promise((resolve, reject) => {
+    try {
+      fs.statSync(CONNECT_SA_JSON_PATH);
+      return resolve();
+    } catch (err) { 
+    if (err.code == 'ENOENT') {
+      return execCmd(GET_GCP_PROJECT_ID, 'Gcloud')
+            .then((data) => PROJECT_ID = data.trim())
+            .then(() =>execCmd(CHECK_HUB_SA_EXISTS(PROJECT_ID), 'Gcloud'))
+            .then((data) => { return data.trim() == MEMBERSHIP_SA_EMAIL(PROJECT_ID)})
+            .then((sa_exists) => {
+                if(sa_exists) {
+                  return execCmd(CREATE_HUB_SA_JSON(PROJECT_ID), 'Gcloud');
+                }
+                else
+                  return execCmd(CREATE_HUB_SA_GC_CMD(PROJECT_ID), 'Gcloud')
+                          .then((data) => execCmd(BIND_ROLE_TO_HUB_SA(PROJECT_ID), 'Gcloud'))
+                          .then((data) => execCmd(CREATE_HUB_SA_JSON(PROJECT_ID), 'Gcloud'));
+            })
+            .then((data) => resolve())
+            .catch((err) => {
+                console.log(`Could not create SA JSON: ${err}`)
+                return reject(err);
+              })
+    }
+    else {
+      return reject(err);
+    }
+  } 
+  })   
+}
+
 // Execute kubectl command. Assumption here is that 'close' will be executed after stdout or stderr.
 // So far has been ok, but may need relook if this assumption turns out incorrect.
-const runKubectl = async function(cmd) {
+const execCmd = async function(cmd, type) {
   return new Promise(async (resolve, reject) => {
-    const kubectlProcess = spawn(cmd, {detached: true, shell: true});
-
-    kubectlProcess.stdout.on('data', (data) => {
-      console.log(`kubectl stdout: ${data}`);
+    const cmdProcess = spawn(cmd, {detached: true, shell: true});
+    var outdata = '';
+    cmdProcess.stdout.on('data', (data) => {
+      outdata += data.toString();
+      console.log(`${type} stdout: ${data}`);
     });
-    kubectlProcess.stderr.on('data', (data) => {
-      console.error(`kubectl stderr: ${data}`);
+    cmdProcess.stderr.on('data', (data) => {
+      console.error(`${type} stderr: ${data}`);
     });
-    kubectlProcess.on('close', (code) => {
-      console.log(`Kubectl command: ${cmd} exited with code ${code}`);
+    cmdProcess.on('close', (code) => {
+      console.log(`${type} command: ${cmd} exited with code ${code}`);
       if (code != 0) {
-        reject(new Error(`Failed to execute kubectl command: ${cmd}`));
+        reject(new Error(`Failed to execute ${type} command: ${cmd}`));
       } else {
-        resolve();
+        console.log('Data on close:' + outdata)
+        resolve(outdata);
       }
     });
   });
@@ -289,4 +361,5 @@ module.exports = {
   runNomos: runNomos,
   getClusterLabels: getClusterLabels,
   getRepoClusterMapping: getRepoClusterMapping,
+  connectCluster: connectCluster,
 };

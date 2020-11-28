@@ -31,7 +31,8 @@ module.exports = function(app) {
   app.post('/uploadClusterObjectYaml', clusterconfigctrl.uploadClusterObjectYaml);
   app.post('/runNomos', clusterconfigctrl.runNomos);
   app.post('/getClusterLabels', clusterconfigctrl.getClusterLabels);
-  app.post('/createClusterRoleBinding', clusterconfigctrl.createClusterRoleBinding)
+  app.post('/createClusterRoleBinding', clusterconfigctrl.createClusterRoleBinding);
+  app.post('/connectCluster',clusterconfigctrl.connectCluster);
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);

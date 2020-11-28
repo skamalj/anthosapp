@@ -27,6 +27,10 @@
           class="btn-block btn-dark text-info pl-1 text-left">Policy Agent</button>
       </div>
       <div class="container m-0 p-0">
+        <button type="button" v-on:click="routeTo('ConnectCluster')"
+          class="btn-block btn-dark text-info pl-1 text-left">Connect Agent</button>
+      </div>
+      <div class="container m-0 p-0">
         <button type="button" v-on:click="routeTo('NetworkPolicyObj')"
           class="btn-block btn-dark text-info pl-1 text-left">Network Policy</button>
       </div>
@@ -71,6 +75,7 @@
   import cluster from './components/cluster.js';
   import repository from './components/repository.js';
   import OnboardCluster from './components/OnboardCluster.js';
+  import ConnectCluster from './components/ConnectCluster.js';
 
   import NamespaceObj from './components/NamespaceObj.js';
   import Namespace from './components/namespaceobjects/namespace.js';
@@ -106,6 +111,7 @@
     { path: '/cluster', component: cluster, name: 'cluster' },
     { path: '/repository', component: repository, name: 'repository'},
     { path: '/OnboardCluster', component: OnboardCluster, name: 'OnboardCluster'},
+    { path: '/ConnectCluster', component: ConnectCluster, name: 'ConnectCluster'},
     {
       path: '/NamespaceObj', component: NamespaceObj, name: 'NamespaceObj', children: [
       { path: '', redirect: 'Namespace' },
