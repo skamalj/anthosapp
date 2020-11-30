@@ -64,16 +64,16 @@ const createConnectLoginToken = function(clustername, username) {
   const KUBECONFIG_CONTEXT = clustername;
   const KUBECONFIG_PATH = `${KUBE_CONFIG_BASEPATH}${clustername}`;
   const CHECK_IF_CLUSTER_SA_EXISTS_CMD = `KUBECONFIG=${KUBECONFIG_PATH} kubectl get sa -o custom-columns=Name:.metadata.name \
-  --field-selector=metadata.name=${KSA_NAME} --no-headers=true`;
-  const CREATE_KSA = `KUBECONFIG=${KUBECONFIG_PATH} kubectl create serviceaccount ${KSA_NAME}`;
+  --field-selector=metadata.name=${KSA_NAME} --no-headers=true -n default`;
+  const CREATE_KSA = `KUBECONFIG=${KUBECONFIG_PATH} kubectl create serviceaccount ${KSA_NAME} -n default`;
   const CREATE_VIEW_ROLE_BIND = `KUBECONFIG=${KUBECONFIG_PATH} kubectl create clusterrolebinding ${KSA_NAME}-view-bind \
 --clusterrole view --serviceaccount default:${KSA_NAME}`;
   const CREATE_CONSOLE_READER_BIND = `KUBECONFIG=${KUBECONFIG_PATH} kubectl create clusterrolebinding ${KSA_NAME}-console-reader-bind \
 --clusterrole cloud-console-reader --serviceaccount default:${KSA_NAME}`;
   const GET_KSA_SECRET_NAME = `KUBECONFIG=${KUBECONFIG_PATH} kubectl get serviceaccount ${KSA_NAME} \
--o jsonpath='{$.secrets[0].name}'`;
+-o jsonpath='{$.secrets[0].name}' -n default`;
   const GET_SECRET_TOKEN = function(SECRET_NAME) { 
-    return `KUBECONFIG=${KUBECONFIG_PATH} kubectl get secret ${SECRET_NAME} -o jsonpath='{$.data.token}'`
+    return `KUBECONFIG=${KUBECONFIG_PATH} kubectl get secret ${SECRET_NAME} -o jsonpath='{$.data.token}' -n default`
   };
 
   return execCmd(CHECK_IF_CLUSTER_SA_EXISTS_CMD, 'kubectl')
