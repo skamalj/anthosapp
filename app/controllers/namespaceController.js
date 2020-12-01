@@ -23,7 +23,7 @@ const createNamespace = async function(req, res) {
       fs.mkdirSync(nsdir);
       if (JSON.parse(req.body.abstractnamespace)) {
         console.log(`Namespace saved: ${values.NAMESPACE}`);
-        res.status(200).send(`Namespace saved: ${values.NAMESPACE}`);
+        return res.status(200).send(`Namespace saved: ${values.NAMESPACE}`);
       }
     }
   } catch (err) {

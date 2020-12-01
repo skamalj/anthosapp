@@ -47,6 +47,10 @@
           class="btn-block btn-secondary pl-4 text-left border-0 ">Secure</button>
       </div>
       <div class="container m-0 p-0">
+        <button type="button" v-on:click="routeTo('ConfigConnectObj')"
+          class="btn-block btn-dark text-info pl-1 text-left">Config Connect</button>
+      </div>
+      <div class="container m-0 p-0">
         <button type="button" data-toggle="collapse" data-target="#resources"
           class="btn-block btn-dark text-info pl-1 text-left  dropdown-toggle">Resources</button>
       </div>
@@ -107,6 +111,9 @@
   import ObserveToolsObj from './components/ObserveToolsObj.js';
   import Grafana from './components/observabilitytools/grafana.js';
 
+  import ConfigConnectObj from './components/ConfigConnectObj.js';
+  import OnboardProject from './components/configconnectobjects/onboardproject.js';
+
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
     { path: '/repository', component: repository, name: 'repository'},
@@ -159,6 +166,12 @@
       path: '/ObserveToolsObj', component: ObserveToolsObj, name: 'ObserveToolsObj', children: [
       { path: '', redirect: 'Grafana' },
       { path: 'Grafana', component: Grafana, name: 'Grafana' },
+      ]
+    },
+    {
+      path: '/ConfigConnectObj', component: ConfigConnectObj, name: 'ConfigConnectObj', children: [
+      { path: '', redirect: 'OnboardProject' },
+      { path: 'OnboardProject', component: OnboardProject, name: 'OnboardProject' },
       ]
     },
   ]

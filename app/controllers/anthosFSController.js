@@ -50,7 +50,7 @@ const init = function() {
       console.log(`Could not restore SSH Config: ${err}`);
   }
   try {
-    fs.chmodSync(SSH_CONFIG_FILE, fs.constants.S_IRUSR);
+    fs.chmodSync(SSH_CONFIG_FILE, fs.constants.S_IRWXU);
   } catch (err) {  
       console.log(`Could not restore SSH Config: ${err}`);
   }

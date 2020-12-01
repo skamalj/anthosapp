@@ -7,7 +7,7 @@ const repotreectrl = require('../controllers/repoTreeController.js');
 const namespacectrl = require('../controllers/namespaceController.js');
 const opapolicyctrl = require('../controllers/opaPolicyController.js');
 const securitytoolsctrl = require('../controllers/toolsController.js');
-const clusterConfigController = require('../controllers/clusterConfigController.js');
+const configconnectctrl = require('../controllers/configConnectController.js');
 
 module.exports = function(app) {
   app.get('/', function(req, res) {
@@ -53,6 +53,8 @@ module.exports = function(app) {
 
   app.post('/setupSysdig', securitytoolsctrl.setupSysdig);
   app.post('/setupGrafana', securitytoolsctrl.setupGrafana);
+
+  app.post('/onboardProject', configconnectctrl.onboardProject)
 
   // 404
   app.use(function(req, res, next) {

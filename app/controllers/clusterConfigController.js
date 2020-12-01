@@ -8,7 +8,7 @@ const {compileTemplateToRepo, saveFile, getObjectYaml} = require('./anthosFSCont
 
 
 // Configurations are set in /config app directory in default.json
-const CONNECT_SA_JSON_PATH = `${config.get('DATA_PATH')}/.config/connect-sa4.json`
+const CONNECT_SA_JSON_PATH = `${config.get('DATA_PATH')}/.config/connect-sa.json`
 const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
 const KUBE_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/kube/`;
 const GIT_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/git/`;
@@ -58,7 +58,7 @@ const deployOperator = async function(req, res) {
         res.status(500).send(msg);
       });
 };
-
+// This function creates user token for login to registered cluster
 const createConnectLoginToken = function(clustername, username) {
   const KSA_NAME = `${username}-hub-login-sa`;
   const KUBECONFIG_CONTEXT = clustername;
@@ -92,6 +92,7 @@ const createConnectLoginToken = function(clustername, username) {
   })
 }
 
+// Returns user token for anthos connected cluster to frontend
 const getConnectLoginToken = function(req, res) {
   createConnectLoginToken(req.body.clusterName, req.body.username)
   .then((data) => {
@@ -103,6 +104,10 @@ const getConnectLoginToken = function(req, res) {
 
   })
 }
+
+// Register cluster to Hub
+// This first makes a call to create required service account and json, and then 
+// deploys the operator
 const connectCluster = function (req, res) {
   createHubSAJson()
   .then(() => deployConnectOperator(req.body.clusterName))
@@ -115,16 +120,16 @@ const connectCluster = function (req, res) {
   })
 };
 
-
+// Disconnect cluster from Hub
 const disconnectCluster = function (req, res) {
   deleteConnectOperator(req.body.clusterName)
   .then(() => {
-    res.status(200).send(`Connect Operator delete from  ${req.body.clusterName}`);
+    res.status(200).send(`Connect Operator deleted from  ${req.body.clusterName}`);
   })
   .catch((err) => {
     if(err.code == 'MEMBERSHIP_NOT_EXIST') {
-      console.log(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
-      res.status(200).send(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
+      console.log(`No hub membership exists for ${req.body.clusterName}: ${err}`);
+      res.status(200).send(`No hub membership exists for ${req.body.clusterName}: ${err}`);
     } else {
       console.log(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
       res.status(200).send(`Error occurred when deleting connect operator from  ${req.body.clusterName}`);
@@ -132,6 +137,8 @@ const disconnectCluster = function (req, res) {
   })
 };
 
+// Deploy connect operator to cluster. Called from connect cluster
+// This also created default console reader role, which is attached to tokens for access
 const deployConnectOperator = function(clustername) {
   const MEMBERSHIP_NAME = `${clustername}-hub`;
   const KUBECONFIG_CONTEXT = clustername;
@@ -140,6 +147,8 @@ const deployConnectOperator = function(clustername) {
   --context=${KUBECONFIG_CONTEXT} \
   --kubeconfig=${KUBECONFIG_PATH} \
   --service-account-key-file=${CONNECT_SA_JSON_PATH}`;
+  const CLUSTER_CONSOLE_READER_ROLE = `KUBECONFIG=${KUBECONFIG_PATH}   \
+  kubectl apply -f ${TEMPLATE_PATH}CONNECT/cloud-console-reader.yaml`
 
   return checkIfConnectMembershipExists(clustername)
         .then((data) => { return data.trim() == MEMBERSHIP_NAME})
@@ -147,8 +156,10 @@ const deployConnectOperator = function(clustername) {
           if (!already_deployed) return execCmd(DEPLOY_OPERATOR_CMD, 'Gcloud');
           else return;
         })
+        .then((data) => execCmd(CLUSTER_CONSOLE_READER_ROLE, 'kubectl'))
 }
 
+// Delete connect operator
 const deleteConnectOperator = function(clustername) {
   const MEMBERSHIP_NAME = `${clustername}-hub`;
   const KUBECONFIG_CONTEXT = clustername;
@@ -178,9 +189,12 @@ const checkIfConnectMembershipExists = function(clustername) {
         .then((data) => execCmd(CHECK_IF_MEMBERSHIP_EXISTS(data.trim()), 'Gcloud'));
 }
 
+// This service account json file is required when deploying connect operator
+// this is passed to the command using "--service-account-key-file". 
+// See "deployConnectOperator" function to see how this is used
 const createHubSAJson = function() {
   let PROJECT_ID = '';
-  const MEMBERSHIP_SA = 'membership-sa4';
+  const MEMBERSHIP_SA = 'membership-sa';
   const MEMBERSHIP_SA_EMAIL = function(PID) { return `${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com` }
   const CHECK_HUB_SA_EXISTS = function(PID) {return `gcloud iam service-accounts list \
   --filter="email=${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com" --format "value(email)"`}
