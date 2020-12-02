@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 const config = require('config');
-const {spawn} = require('child_process');
+const { spawn } = require('child_process');
 const fs = require('fs');
 const handlebars = require('handlebars');
 const yaml = require('yaml');
-const {compileTemplateToRepo, saveFile, getObjectYaml} = require('./anthosFSController');
+const { compileTemplateToRepo, saveFile, getObjectYaml } = require('./anthosFSController');
 
 
 // Configurations are set in /config app directory in default.json
@@ -18,7 +18,7 @@ const OPERATOR_PATH = `${config.get('BASE_PATH')}/.anthos-operator/config-manage
 // This creates git secret, details of which it gets from save gitconfig file,
 // then deploys config operator to the cluster, see the use of --kubeconfig flag to
 // point to right cluster in the command
-const deployOperator = async function(req, res) {
+const deployOperator = async function (req, res) {
   const deployOperator = `kubectl apply -f ${OPERATOR_PATH} \
     --kubeconfig ${KUBE_CONFIG_BASEPATH}${req.body.clusterName}`;
 
@@ -46,20 +46,20 @@ const deployOperator = async function(req, res) {
 
   // Now execute all the generated commands
   execCmd(deployOperator, 'Kubectl')
-      .then((data) => execCmd(gitsecret, 'Kubectl'))
-      .then((data)=> execCmd(applyOperatorConfig, 'Kubectl'))
-      .then((data) => {
-        const msg = `Operator deployed successfully for cluster ${req.body.clusterName}`;
-        res.status(200).send(msg);
-      })
-      .catch((err) => {
-        const msg = `Operator for cluster ${req.body.clusterName} could not be deploued`;
-        console.log(`msg: ${err}`);
-        res.status(500).send(msg);
-      });
+    .then((data) => execCmd(gitsecret, 'Kubectl'))
+    .then((data) => execCmd(applyOperatorConfig, 'Kubectl'))
+    .then((data) => {
+      const msg = `Operator deployed successfully for cluster ${req.body.clusterName}`;
+      res.status(200).send(msg);
+    })
+    .catch((err) => {
+      const msg = `Operator for cluster ${req.body.clusterName} could not be deploued`;
+      console.log(`msg: ${err}`);
+      res.status(500).send(msg);
+    });
 };
 // This function creates user token for login to registered cluster
-const createConnectLoginToken = function(clustername, username) {
+const createConnectLoginToken = function (clustername, username) {
   const KSA_NAME = `${username}-hub-login-sa`;
   const KUBECONFIG_CONTEXT = clustername;
   const KUBECONFIG_PATH = `${KUBE_CONFIG_BASEPATH}${clustername}`;
@@ -72,37 +72,37 @@ const createConnectLoginToken = function(clustername, username) {
 --clusterrole cloud-console-reader --serviceaccount default:${KSA_NAME}`;
   const GET_KSA_SECRET_NAME = `KUBECONFIG=${KUBECONFIG_PATH} kubectl get serviceaccount ${KSA_NAME} \
 -o jsonpath='{$.secrets[0].name}' -n default`;
-  const GET_SECRET_TOKEN = function(SECRET_NAME) { 
+  const GET_SECRET_TOKEN = function (SECRET_NAME) {
     return `KUBECONFIG=${KUBECONFIG_PATH} kubectl get secret ${SECRET_NAME} -o jsonpath='{$.data.token}' -n default`
   };
 
   return execCmd(CHECK_IF_CLUSTER_SA_EXISTS_CMD, 'kubectl')
-  .then((data) => KSA_NAME == data.trim())
-  .then((ksa_exists) => {
-    if(ksa_exists) {
-      return execCmd(GET_KSA_SECRET_NAME, 'kubectl')
-      .then((data) => execCmd(GET_SECRET_TOKEN(data.trim()), 'kubectl'))
-    } else {
-      return execCmd(CREATE_KSA, 'kubectl')
-      .then((data) => execCmd(CREATE_VIEW_ROLE_BIND, 'kubectl'))
-      .then((data) => execCmd(CREATE_CONSOLE_READER_BIND, 'kubectl'))
-      .then((data) => execCmd(GET_KSA_SECRET_NAME, 'kubectl'))
-      .then((data) => execCmd(GET_SECRET_TOKEN(data.trim()), 'kubectl'))
-    }
-  })
+    .then((data) => KSA_NAME == data.trim())
+    .then((ksa_exists) => {
+      if (ksa_exists) {
+        return execCmd(GET_KSA_SECRET_NAME, 'kubectl')
+          .then((data) => execCmd(GET_SECRET_TOKEN(data.trim()), 'kubectl'))
+      } else {
+        return execCmd(CREATE_KSA, 'kubectl')
+          .then((data) => execCmd(CREATE_VIEW_ROLE_BIND, 'kubectl'))
+          .then((data) => execCmd(CREATE_CONSOLE_READER_BIND, 'kubectl'))
+          .then((data) => execCmd(GET_KSA_SECRET_NAME, 'kubectl'))
+          .then((data) => execCmd(GET_SECRET_TOKEN(data.trim()), 'kubectl'))
+      }
+    })
 }
 
 // Returns user token for anthos connected cluster to frontend
-const getConnectLoginToken = function(req, res) {
+const getConnectLoginToken = function (req, res) {
   createConnectLoginToken(req.body.clusterName, req.body.username)
-  .then((data) => {
-    token = data.trim();
-    return res.status(200).send(Buffer.from(token, 'base64').toString('utf-8'));
-  }).catch((err) => {
-    console.log(`Token not generated: ${err}`)
-    return res.status(500).send('Token could not be generated');
+    .then((data) => {
+      token = data.trim();
+      return res.status(200).send(Buffer.from(token, 'base64').toString('utf-8'));
+    }).catch((err) => {
+      console.log(`Token not generated: ${err}`)
+      return res.status(500).send('Token could not be generated');
 
-  })
+    })
 }
 
 // Register cluster to Hub
@@ -110,36 +110,36 @@ const getConnectLoginToken = function(req, res) {
 // deploys the operator
 const connectCluster = function (req, res) {
   createHubSAJson()
-  .then(() => deployConnectOperator(req.body.clusterName))
-  .then(() => {
-    res.status(200).send(`Connect Operator deployed to ${req.body.clusterName}`);
-  })
-  .catch((err) => {
-    console.log(`Error: Connect Operator not deployed to ${req.body.clusterName}: ${err}`)
-    res.status(200).send(`Error: Connect Operator not deployed to ${req.body.clusterName}`);
-  })
+    .then(() => deployConnectOperator(req.body.clusterName))
+    .then(() => {
+      res.status(200).send(`Connect Operator deployed to ${req.body.clusterName}`);
+    })
+    .catch((err) => {
+      console.log(`Error: Connect Operator not deployed to ${req.body.clusterName}: ${err}`)
+      res.status(200).send(`Error: Connect Operator not deployed to ${req.body.clusterName}`);
+    })
 };
 
 // Disconnect cluster from Hub
 const disconnectCluster = function (req, res) {
   deleteConnectOperator(req.body.clusterName)
-  .then(() => {
-    res.status(200).send(`Connect Operator deleted from  ${req.body.clusterName}`);
-  })
-  .catch((err) => {
-    if(err.code == 'MEMBERSHIP_NOT_EXIST') {
-      console.log(`No hub membership exists for ${req.body.clusterName}: ${err}`);
-      res.status(200).send(`No hub membership exists for ${req.body.clusterName}: ${err}`);
-    } else {
-      console.log(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
-      res.status(200).send(`Error occurred when deleting connect operator from  ${req.body.clusterName}`);
-    }
-  })
+    .then(() => {
+      res.status(200).send(`Connect Operator deleted from  ${req.body.clusterName}`);
+    })
+    .catch((err) => {
+      if (err.code == 'MEMBERSHIP_NOT_EXIST') {
+        console.log(`No hub membership exists for ${req.body.clusterName}: ${err}`);
+        res.status(200).send(`No hub membership exists for ${req.body.clusterName}: ${err}`);
+      } else {
+        console.log(`Error occurred when deleting connect operator from ${req.body.clusterName}: ${err}`);
+        res.status(200).send(`Error occurred when deleting connect operator from  ${req.body.clusterName}`);
+      }
+    })
 };
 
 // Deploy connect operator to cluster. Called from connect cluster
 // This also created default console reader role, which is attached to tokens for access
-const deployConnectOperator = function(clustername) {
+const deployConnectOperator = function (clustername) {
   const MEMBERSHIP_NAME = `${clustername}-hub`;
   const KUBECONFIG_CONTEXT = clustername;
   const KUBECONFIG_PATH = `${KUBE_CONFIG_BASEPATH}${clustername}`;
@@ -151,16 +151,16 @@ const deployConnectOperator = function(clustername) {
   kubectl apply -f ${TEMPLATE_PATH}CONNECT/cloud-console-reader.yaml`
 
   return checkIfConnectMembershipExists(clustername)
-        .then((data) => { return data.trim() == MEMBERSHIP_NAME})
-        .then((already_deployed) => {
-          if (!already_deployed) return execCmd(DEPLOY_OPERATOR_CMD, 'Gcloud');
-          else return;
-        })
-        .then((data) => execCmd(CLUSTER_CONSOLE_READER_ROLE, 'kubectl'))
+    .then((data) => { return data.trim() == MEMBERSHIP_NAME })
+    .then((already_deployed) => {
+      if (!already_deployed) return execCmd(DEPLOY_OPERATOR_CMD, 'Gcloud');
+      else return;
+    })
+    .then((data) => execCmd(CLUSTER_CONSOLE_READER_ROLE, 'kubectl'))
 }
 
 // Delete connect operator
-const deleteConnectOperator = function(clustername) {
+const deleteConnectOperator = function (clustername) {
   const MEMBERSHIP_NAME = `${clustername}-hub`;
   const KUBECONFIG_CONTEXT = clustername;
   const KUBECONFIG_PATH = `${KUBE_CONFIG_BASEPATH}${clustername}`;
@@ -168,80 +168,88 @@ const deleteConnectOperator = function(clustername) {
   --context ${KUBECONFIG_CONTEXT} --kubeconfig ${KUBECONFIG_PATH}`;
 
   return checkIfConnectMembershipExists(clustername)
-        .then((data) => { return data.trim() == MEMBERSHIP_NAME})
-        .then((deployed) => {
-          if (deployed) return execCmd(DELETE_OPERATOR_CMD, 'Gcloud');
-          else {
-            let err = new Error(`Membership ${MEMBERSHIP_NAME} does not exist, nothing to delete`);
-            err.code = 'MEMBERSHIP_NOT_EXIST';
-            throw err;
-          }
-        })
+    .then((data) => { return data.trim() == MEMBERSHIP_NAME })
+    .then((deployed) => {
+      if (deployed) return execCmd(DELETE_OPERATOR_CMD, 'Gcloud');
+      else {
+        let err = new Error(`Membership ${MEMBERSHIP_NAME} does not exist, nothing to delete`);
+        err.code = 'MEMBERSHIP_NOT_EXIST';
+        throw err;
+      }
+    })
 }
 
-const checkIfConnectMembershipExists = function(clustername) {
-  const FULL_MEMBERSHIP_NAME = function(PID) { return`projects/${PID}/locations/global/memberships/${clustername}-hub`}
+const checkIfConnectMembershipExists = function (clustername) {
+  const FULL_MEMBERSHIP_NAME = function (PID) { return `projects/${PID}/locations/global/memberships/${clustername}-hub` }
   const GET_GCP_PROJECT_ID = `gcloud config list --format 'value(core.project)'`;
-  const CHECK_IF_MEMBERSHIP_EXISTS =  function(PID) { return `gcloud container hub memberships list \
-  --filter='${FULL_MEMBERSHIP_NAME(PID)}' --format='value(name)'`}
+  const CHECK_IF_MEMBERSHIP_EXISTS = function (PID) {
+    return `gcloud container hub memberships list \
+  --filter='${FULL_MEMBERSHIP_NAME(PID)}' --format='value(name)'`
+  }
 
   return execCmd(GET_GCP_PROJECT_ID, 'Gcloud')
-        .then((data) => execCmd(CHECK_IF_MEMBERSHIP_EXISTS(data.trim()), 'Gcloud'));
+    .then((data) => execCmd(CHECK_IF_MEMBERSHIP_EXISTS(data.trim()), 'Gcloud'));
 }
 
 // This service account json file is required when deploying connect operator
 // this is passed to the command using "--service-account-key-file". 
 // See "deployConnectOperator" function to see how this is used
-const createHubSAJson = function() {
+const createHubSAJson = function () {
   let PROJECT_ID = '';
   const MEMBERSHIP_SA = 'membership-sa';
-  const MEMBERSHIP_SA_EMAIL = function(PID) { return `${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com` }
-  const CHECK_HUB_SA_EXISTS = function(PID) {return `gcloud iam service-accounts list \
-  --filter="email=${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com" --format "value(email)"`}
+  const MEMBERSHIP_SA_EMAIL = function (PID) { return `${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com` }
+  const CHECK_HUB_SA_EXISTS = function (PID) {
+    return `gcloud iam service-accounts list \
+  --filter="email=${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com" --format "value(email)"`
+  }
   const GET_GCP_PROJECT_ID = `gcloud config list --format 'value(core.project)'`;
-  const CREATE_HUB_SA_GC_CMD = function(PID) { return `gcloud iam service-accounts create ${MEMBERSHIP_SA} --project=${PID}` }
-  const BIND_ROLE_TO_HUB_SA = function(PID) { return `gcloud projects add-iam-policy-binding ${PID} \
-  --member="serviceAccount:${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com" --role="roles/gkehub.connect"` }
-  const CREATE_HUB_SA_JSON= function(PID) { return `gcloud iam service-accounts keys create ${CONNECT_SA_JSON_PATH} \
-  --iam-account=${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com  --project=${PID}` }
-  
+  const CREATE_HUB_SA_GC_CMD = function (PID) { return `gcloud iam service-accounts create ${MEMBERSHIP_SA} --project=${PID}` }
+  const BIND_ROLE_TO_HUB_SA = function (PID) {
+    return `gcloud projects add-iam-policy-binding ${PID} \
+  --member="serviceAccount:${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com" --role="roles/gkehub.connect"`
+  }
+  const CREATE_HUB_SA_JSON = function (PID) {
+    return `gcloud iam service-accounts keys create ${CONNECT_SA_JSON_PATH} \
+  --iam-account=${MEMBERSHIP_SA}@${PID}.iam.gserviceaccount.com  --project=${PID}`
+  }
+
   return new Promise((resolve, reject) => {
     try {
       fs.statSync(CONNECT_SA_JSON_PATH);
       return resolve();
-    } catch (err) { 
-    if (err.code == 'ENOENT') {
-      return execCmd(GET_GCP_PROJECT_ID, 'Gcloud')
-            .then((data) => PROJECT_ID = data.trim())
-            .then(() =>execCmd(CHECK_HUB_SA_EXISTS(PROJECT_ID), 'Gcloud'))
-            .then((data) => { return data.trim() == MEMBERSHIP_SA_EMAIL(PROJECT_ID)})
-            .then((sa_exists) => {
-                if(sa_exists) {
-                  return execCmd(CREATE_HUB_SA_JSON(PROJECT_ID), 'Gcloud');
-                }
-                else
-                  return execCmd(CREATE_HUB_SA_GC_CMD(PROJECT_ID), 'Gcloud')
-                          .then((data) => execCmd(BIND_ROLE_TO_HUB_SA(PROJECT_ID), 'Gcloud'))
-                          .then((data) => execCmd(CREATE_HUB_SA_JSON(PROJECT_ID), 'Gcloud'));
-            })
-            .then((data) => resolve())
-            .catch((err) => {
-                console.log(`Could not create SA JSON: ${err}`)
-                return reject(err);
-              })
+    } catch (err) {
+      if (err.code == 'ENOENT') {
+        return execCmd(GET_GCP_PROJECT_ID, 'Gcloud')
+          .then((data) => PROJECT_ID = data.trim())
+          .then(() => execCmd(CHECK_HUB_SA_EXISTS(PROJECT_ID), 'Gcloud'))
+          .then((data) => { return data.trim() == MEMBERSHIP_SA_EMAIL(PROJECT_ID) })
+          .then((sa_exists) => {
+            if (sa_exists) {
+              return execCmd(CREATE_HUB_SA_JSON(PROJECT_ID), 'Gcloud');
+            }
+            else
+              return execCmd(CREATE_HUB_SA_GC_CMD(PROJECT_ID), 'Gcloud')
+                .then((data) => execCmd(BIND_ROLE_TO_HUB_SA(PROJECT_ID), 'Gcloud'))
+                .then((data) => execCmd(CREATE_HUB_SA_JSON(PROJECT_ID), 'Gcloud'));
+          })
+          .then((data) => resolve())
+          .catch((err) => {
+            console.log(`Could not create SA JSON: ${err}`)
+            return reject(err);
+          })
+      }
+      else {
+        return reject(err);
+      }
     }
-    else {
-      return reject(err);
-    }
-  } 
-  })   
+  })
 }
 
 // Execute kubectl command. Assumption here is that 'close' will be executed after stdout or stderr.
 // So far has been ok, but may need relook if this assumption turns out incorrect.
-const execCmd = async function(cmd, type) {
+const execCmd = async function (cmd, type) {
   return new Promise(async (resolve, reject) => {
-    const cmdProcess = spawn(cmd, {detached: true, shell: true});
+    const cmdProcess = spawn(cmd, { detached: true, shell: true });
     var outdata = '';
     cmdProcess.stdout.on('data', (data) => {
       outdata += data.toString();
@@ -266,18 +274,21 @@ const execCmd = async function(cmd, type) {
 // , concatenate these and then use them with nomos command. KUBECONFIG="...files..."
 // ToDo: There is no filter applied to the base repo, before cheking the status. Result is command 
 // returns status of all clusters irrespetive of which repo they are connected to. 
-const runNomos = async function(req, res) {
-  const dirents = fs.readdirSync(KUBE_CONFIG_BASEPATH, {withFileTypes: true});
-  clusterlist = '';
-  dirents.map((d) => {
-    if (!d.name.includes('yaml')) {
-      clusterlist = clusterlist + KUBE_CONFIG_BASEPATH + d.name + ':';
-    }
-  });
+const runNomos = async function (req, res) {
+
+  let clusterkubeconfigs = '';
+
+  const clusterlist = await createRepoClusterMapping()
+    .then((clusterrepos) =>
+      clusterrepos.filter(clusterrepo => { return clusterrepo.reponame == req.body.repoName }))
+
+  clusterlist.forEach(clusterrepo =>
+    clusterkubeconfigs = clusterkubeconfigs + KUBE_CONFIG_BASEPATH + clusterrepo.clustername + ':');
+
   let stdout = '';
   let stderr = '';
-  const cmd = `KUBECONFIG=${clusterlist} nomos status`;
-  const nomosProcess = spawn(cmd, {detached: true, shell: true});
+  const cmd = `KUBECONFIG=${clusterkubeconfigs} nomos status`;
+  const nomosProcess = spawn(cmd, { detached: true, shell: true });
 
   nomosProcess.stdout.on('data', (data) => {
     stdout = data.toString('utf8');
@@ -287,21 +298,21 @@ const runNomos = async function(req, res) {
   });
   nomosProcess.on('close', (code) => {
     console.log(`Nomos command: ${cmd} exited with code ${code}\nstdout: ${stdout}\nstderr: ${stderr}\n`);
-    return res.status(200).send(JSON.stringify({stdout: stdout, stderr: stderr}));
+    return res.status(200).send(JSON.stringify({ stdout: stdout, stderr: stderr }));
   });
 };
 
 // Return list of registered clusters
-const getClusters = async function(req, res) {
+const getClusters = async function (req, res) {
   let clusters;
   try {
-    const dirents = fs.readdirSync(KUBE_CONFIG_BASEPATH, {withFileTypes: true});
+    const dirents = fs.readdirSync(KUBE_CONFIG_BASEPATH, { withFileTypes: true });
     clusters = await dirents.filter((dir) => dir.isFile).map((file) => {
       const yamlcontent = fs.readFileSync(`${KUBE_CONFIG_BASEPATH}${file.name}`, 'utf8');
       const doc = yaml.parseDocument(yamlcontent);
       if (JSON.parse(JSON.stringify(doc.contents)).clusters) {
         const cluster = JSON.parse(JSON.stringify(doc.contents)).clusters[0];
-        return {endpoint: cluster.cluster.server, name: cluster.name};
+        return { endpoint: cluster.cluster.server, name: cluster.name };
       } else {
         return null;
       }
@@ -315,134 +326,152 @@ const getClusters = async function(req, res) {
 
 // ToDo: Delete cluster
 
+// Create and return cluster to repo mapping
+const getRepoClusterMapping = function (req, res) {
+  createRepoClusterMapping()
+    .then((clusterrepolist) => {
+      res.status(200).send(clusterrepolist);
+    })
+    .catch((err) => {
+      console.log(`Unable to get repo cluster mapping: ${err}`);
+      res.status(500).send('Unable to get repo cluster mapping');
+    })
+}
+
 // Returns mapping of which cluster resource is attached to which repository
-const getRepoClusterMapping = function() {
+const createRepoClusterMapping = function () {
   return new Promise(async (resolve, reject) => {
     let clusterrepos;
     try {
       // Read git configuration - repoName and repoURI
-      const gitconfigs  = fs.readFileSync(`${GIT_CONFIG_BASEPATH}gitrepos.config`,'utf-8');
+      const gitconfigs = fs.readFileSync(`${GIT_CONFIG_BASEPATH}gitrepos.config`, 'utf-8');
       const gitconfigjson = JSON.parse(gitconfigs)
       // Read cluster configmanagement yamls to identify repoURI attached to clusters
       // Then join this with git cofig to get repo name
-      const dirents = fs.readdirSync(KUBE_CONFIG_BASEPATH, {withFileTypes: true});
+      const dirents = fs.readdirSync(KUBE_CONFIG_BASEPATH, { withFileTypes: true });
       clusterrepos = dirents.filter((dir) => dir.name.includes('.yaml')).map((file) => {
         const clusterconfig = fs.readFileSync(`${KUBE_CONFIG_BASEPATH}${file.name}`, 'utf-8');
         const clusterconfigjson = yaml.parseDocument(clusterconfig);
-        const clusterspec =   (JSON.parse(JSON.stringify(clusterconfigjson.contents)))['spec'];
+        const clusterspec = (JSON.parse(JSON.stringify(clusterconfigjson.contents)))['spec'];
         const clustername = clusterspec.clusterName;
         const clusterrepouri = clusterspec.git.syncRepo;
         const reponame = gitconfigjson.repos.filter(r => r.repo == clusterrepouri)[0].repoName
-        return {clustername: clustername, reponame: reponame};
+        return { clustername: clustername, reponame: reponame };
       })
       return resolve(clusterrepos);
     } catch (err) {
       console.log(`Error when creating cluster-repo mapping: ${err}`);
       return reject(err);
-    }  
-  });  
+    }
+  });
 };
 
 // Create manifest to attach labels to cluster
-const labelCluster = async function(req, res) {
-  const values = {CLUSTER_NAME: JSON.parse(req.body.clustername), LABELS: JSON.parse(req.body.labelrows)};
+const labelCluster = async function (req, res) {
+  const values = { CLUSTER_NAME: JSON.parse(req.body.clustername), LABELS: JSON.parse(req.body.labelrows) };
   const template = `${TEMPLATE_PATH}cluster-labels.tpl`;
-  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
+  let repolocation = `${GIT_REPO_BASEPATH}${JSON.parse(req.body.repoName)}/clusterregistry`;
   repolocation = `${repolocation}/${JSON.parse(req.body.clustername)}-labels.yaml`;
 
   compileTemplateToRepo(template, values, repolocation)
-      .then((result) => {
-        console.log(`Cluster labels saved: ${result}`);
-        return res.status(200).send(`Labels saved for cluster ${JSON.parse(req.body.clustername)}`);
-      })
-      .catch((err) => {
-        console.log(`Cluster labels not saved: ${err}`);
-        return res.status(500).send(`Cluster labels not saved for cluster ${req.body.clustername}`);
-      });
+    .then((result) => {
+      console.log(`Cluster labels saved: ${result}`);
+      return res.status(200).send(`Labels saved for cluster ${JSON.parse(req.body.clustername)}`);
+    })
+    .catch((err) => {
+      console.log(`Cluster labels not saved: ${err}`);
+      return res.status(500).send(`Cluster labels not saved for cluster ${req.body.clustername}`);
+    });
 };
 
 // Create cluster selector and save it in clusterregistry
-const createClusterSelector = async function(req, res) {
+const createClusterSelector = async function (req, res) {
   // Set values for templates
-  const values = {SELECTOR_NAME: JSON.parse(req.body.selectorname),
+  const values = {
+    SELECTOR_NAME: JSON.parse(req.body.selectorname),
     KIND: 'ClusterSelector',
     APIVERSION: 'configmanagement.gke.io/v1',
-    LABELS: JSON.parse(req.body.labelrows)};
+    LABELS: JSON.parse(req.body.labelrows)
+  };
 
   // Get the template, this temlate is used by both clusterselector as well as namespaceselector
   const template = `${TEMPLATE_PATH}anthos-selector.tpl`;
 
   // Set filelocation and name for selector
-  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
+  let repolocation = `${GIT_REPO_BASEPATH}${JSON.parse(req.body.repoName)}/clusterregistry`;
   repolocation = `${repolocation}/${JSON.parse(req.body.selectorname)}-clusterselector.yaml`;
 
   compileTemplateToRepo(template, values, repolocation)
-      .then((result) => {
-        console.log(`ClusterSelector saved: ${result}`);
-        return res.status(200).send(`ClusterSelector saved: ${JSON.parse(req.body.selectorname)}`);
-      })
-      .catch((err) => {
-        console.log(`ClusterSelector ${JSON.parse(req.body.selectorname)} not saved: ${err}`);
-        return res.status(500).send(`ClusterSelector  ${JSON.parse(req.body.selectorname)} not saved`);
-      });
+    .then((result) => {
+      console.log(`ClusterSelector saved: ${result}`);
+      return res.status(200).send(`ClusterSelector saved: ${JSON.parse(req.body.selectorname)}`);
+    })
+    .catch((err) => {
+      console.log(`ClusterSelector ${JSON.parse(req.body.selectorname)} not saved: ${err}`);
+      return res.status(500).send(`ClusterSelector  ${JSON.parse(req.body.selectorname)} not saved`);
+    });
 };
 
 // Create manifest for clusterrole
-const createClusterRole = async function(req, res) {
-  const values = {ROLE_NAME: JSON.parse(req.body.clusterrole), CLUSTER_SELECTOR: JSON.parse(req.body.clusterselector),
-    RULES: JSON.parse(req.body.rules)};
+const createClusterRole = async function (req, res) {
+  const values = {
+    ROLE_NAME: JSON.parse(req.body.clusterrole), CLUSTER_SELECTOR: JSON.parse(req.body.clusterselector),
+    RULES: JSON.parse(req.body.rules)
+  };
   const template = `${TEMPLATE_PATH}clusterrole.tpl`;
-  let repolocation = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/cluster`;
+  let repolocation = `${GIT_REPO_BASEPATH}${JSON.parse(req.body.repoName)}/cluster`;
   repolocation = `${repolocation}/${JSON.parse(req.body.clusterrole)}.yaml`;
 
   compileTemplateToRepo(template, values, repolocation)
-      .then((result) => {
-        console.log(`Cluster role saved: ${result}`);
-        return res.status(200).send(`Cluster role ${JSON.parse(req.body.clusterrole)} saved`);
-      })
-      .catch((err) => {
-        console.log(`Clusterrole ${JSON.parse(req.body.clusterrole)} not saved: ${err}`);
-        return res.status(500).send(`Clusterrole not saved for role ${req.body.clusterrole}`);
-      });
+    .then((result) => {
+      console.log(`Cluster role saved: ${result}`);
+      return res.status(200).send(`Cluster role ${JSON.parse(req.body.clusterrole)} saved`);
+    })
+    .catch((err) => {
+      console.log(`Clusterrole ${JSON.parse(req.body.clusterrole)} not saved: ${err}`);
+      return res.status(500).send(`Clusterrole not saved for role ${req.body.clusterrole}`);
+    });
 };
 
 // Create manifest for clusterrolebinding
-const createClusterRoleBinding = async function(req, res) {
-  const values = {CLUSTER_ROLE_BINDING: req.body.clusterrolebinding, CLUSTER_SELECTOR: req.body.clusterselector,
-    CLUSTER_ROLE: req.body.clusterrole, SUBJECTS: JSON.parse(req.body.subjects)};
+const createClusterRoleBinding = async function (req, res) {
+  const values = {
+    CLUSTER_ROLE_BINDING: req.body.clusterrolebinding, CLUSTER_SELECTOR: req.body.clusterselector,
+    CLUSTER_ROLE: req.body.clusterrole, SUBJECTS: JSON.parse(req.body.subjects)
+  };
 
   const template = `${TEMPLATE_PATH}clusterrolebinding.tpl`;
-  let repolocation = `${GIT_REPO_BASEPATH }${req.body.repoName}/cluster`;
+  let repolocation = `${GIT_REPO_BASEPATH}${req.body.repoName}/cluster`;
   repolocation = `${repolocation}/${req.body.clusterrolebinding}.yaml`;
 
   compileTemplateToRepo(template, values, repolocation)
-      .then((result) => {
-        console.log(`Cluster role binding saved: ${result}`);
-        return res.status(200).send(`Cluster role ${req.body.clusterrolebinding} saved`);
-      })
-      .catch((err) => {
-        console.log(`Clusterrolebinding ${req.body.clusterrolebinding} not saved: ${err}`);
-        return res.status(500).send(`Clusterrolebinding not saved for binding ${req.body.clusterrolebinding}`);
-      });
+    .then((result) => {
+      console.log(`Cluster role binding saved: ${result}`);
+      return res.status(200).send(`Cluster role ${req.body.clusterrolebinding} saved`);
+    })
+    .catch((err) => {
+      console.log(`Clusterrolebinding ${req.body.clusterrolebinding} not saved: ${err}`);
+      return res.status(500).send(`Clusterrolebinding not saved for binding ${req.body.clusterrolebinding}`);
+    });
 };
 
 // Upload  cluster object manisfet, this is to use for object where there is no template.
 // Saves the file in "cluster" directory
-const uploadClusterObjectYaml = async function(req, res) {
-  const repolocation = `${GIT_REPO_BASEPATH }${req.body.repoName}/cluster/`;
+const uploadClusterObjectYaml = async function (req, res) {
+  const repolocation = `${GIT_REPO_BASEPATH}${req.body.repoName}/cluster/`;
   saveFile(req, req.body.filename, repolocation)
-      .then((resp) => {
-        res.status(200).send(resp);
-      })
-      .catch((err) => {
-        res.status(500).send(err);
-      });
+    .then((resp) => {
+      res.status(200).send(resp);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
 };
 
 // This function returns current labels attached to the cluster, so that these can be updated
-const getClusterLabels = function(req, res) {
+const getClusterLabels = function (req, res) {
   try {
-    let fpath = `${GIT_REPO_BASEPATH }${JSON.parse(req.body.repoName)}/clusterregistry`;
+    let fpath = `${GIT_REPO_BASEPATH}${JSON.parse(req.body.repoName)}/clusterregistry`;
     fpath = `${fpath}/${JSON.parse(req.body.clustername)}-labels.yaml`;
     const clusteryaml = getObjectYaml(fpath);
     if (clusteryaml) {

@@ -35,6 +35,7 @@ module.exports = function(app) {
   app.post('/connectCluster',clusterconfigctrl.connectCluster);
   app.post('/disconnectCluster',clusterconfigctrl.disconnectCluster);
   app.post('/getConnectLoginToken',clusterconfigctrl.getConnectLoginToken);
+  app.post('/getRepoClusterMapping',clusterconfigctrl.getRepoClusterMapping);
 
   app.post('/getRepoTree', repotreectrl.repoTree);
   app.post('/createNamespace', namespacectrl.createNamespace);

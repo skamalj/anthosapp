@@ -5,7 +5,7 @@ Vue.component('DeployOperator',
       data: function() {
         return {
           clusterName: '',
-          clusterList: [],
+          clusterlist: [],
         };
       },
       methods: {
@@ -32,17 +32,16 @@ Vue.component('DeployOperator',
         },
         getClusterList() {
           const vueObj = this;
-          axios.post('/getClusterlist').then(function(res) {
-            res.data.forEach((cluster) => {
-              if (cluster) {
-                vueObj.clusterList.push(cluster.name);
-              }
-            });
+          axios.post('/getRepoClusterMapping').then(function(resp) {
+            vueObj.clusterlist = resp.data;
           })
               .catch(function(err) {
                 window.alert(err);
               });
         },
+      },
+      created: function() {
+        this.getClusterList();
       },
       watch: {
         repoName: function(val) {
@@ -57,11 +56,29 @@ Vue.component('DeployOperator',
             <div class="form-group m-3">     
               <select v-model="clusterName" class="form-control">
                 <option hidden value=""> Select Cluster</option>
-                <option v-for="cluster in clusterList" :value="cluster">{{ cluster }}</option>
+                <option v-for="cluster in clusterlist" :value="cluster">{{ cluster }}</option>
               </select>
             </div>
             <div class="row pb-3 m-0 justify-content-end"> \
                 <button type="button" :disabled="!clusterName" class="btn btn-dark" v-on:click="deployOperator()">Configure</button> \
+            </div>  
+            <div class="container m-3 mt-5">  
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Cluster</th>
+                  <th scope="col">Repo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(cluster, index) in clusterlist" v-if="cluster">
+                  <th scope="row">{{ index + 1}}</th>
+                  <td>{{ cluster.clustername }}</td>
+                  <td>{{ cluster.reponame }}</td>
+                </tr>
+              </tbody>
+            </table>
             </div>  
         </div>`,
     },
