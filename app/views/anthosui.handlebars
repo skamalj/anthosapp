@@ -113,6 +113,7 @@
 
   import ConfigConnectObj from './components/ConfigConnectObj.js';
   import OnboardProject from './components/configconnectobjects/onboardproject.js';
+  import Network from './components/configconnectobjects/network.js';
 
   const routes = [
     { path: '/cluster', component: cluster, name: 'cluster' },
@@ -172,6 +173,7 @@
       path: '/ConfigConnectObj', component: ConfigConnectObj, name: 'ConfigConnectObj', children: [
       { path: '', redirect: 'OnboardProject' },
       { path: 'OnboardProject', component: OnboardProject, name: 'OnboardProject' },
+      { path: 'Network', component: Network, name: 'Network' },
       ]
     },
   ]
