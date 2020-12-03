@@ -6,6 +6,7 @@ Vue.component('DeployOperator',
         return {
           clusterName: '',
           clusterlist: [],
+          clusterrepolist: [],
         };
       },
       methods: {
@@ -33,7 +34,8 @@ Vue.component('DeployOperator',
         getClusterList() {
           const vueObj = this;
           axios.post('/getRepoClusterMapping').then(function(resp) {
-            vueObj.clusterlist = resp.data;
+            vueObj.clusterrepolist = resp.data;
+            vueObj.clusterlist = resp.data.map(c => c.clustername);
           })
               .catch(function(err) {
                 window.alert(err);
@@ -72,7 +74,7 @@ Vue.component('DeployOperator',
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(cluster, index) in clusterlist" v-if="cluster">
+                <tr v-for="(cluster, index) in clusterrepolist" v-if="cluster">
                   <th scope="row">{{ index + 1}}</th>
                   <td>{{ cluster.clustername }}</td>
                   <td>{{ cluster.reponame }}</td>

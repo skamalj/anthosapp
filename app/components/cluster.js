@@ -23,6 +23,7 @@ Vue.component('cluster',
           this.filename = this.file.name;
         },
         submitFile() {
+          const vueObj = this;
           const formData = new FormData();
           Object.keys(this.$data).forEach( (key) => formData.append(key, this.$data[key]));
           axios.post('/saveAnthosConfig',
@@ -34,6 +35,7 @@ Vue.component('cluster',
               },
           ).then(function(resp) {
             globalobj.appendLog(resp.data);
+            vueObj.getClusterList();
           })
               .catch(function(err) {
                 window.alert(err);
