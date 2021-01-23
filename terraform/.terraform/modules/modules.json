@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"gcp-anthos-gke","Source":"./GCP/GKE","Dir":"GCP/GKE"},{"Key":"","Source":"","Dir":"."},{"Key":"gcp-anthos-iam","Source":"./GCP/IAM","Dir":"GCP/IAM"}]}

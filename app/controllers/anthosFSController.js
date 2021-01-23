@@ -10,6 +10,8 @@ const yaml = require('yaml');
 const readFilePromise = util.promisify(fs.readFile);
 
 // Configurations are set in /config app directory in default.json
+// These variables are tied to environment variables. So to change the value,
+// set environment varible "DATA_PATH" etc.
 const GIT_REPO_BASEPATH = `${config.get('DATA_PATH')}/.repos/`;
 const KUBE_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/kube/`;
 const GIT_CONFIG_BASEPATH = `${config.get('DATA_PATH')}/.config/git/`;
@@ -18,6 +20,7 @@ const SSH_CONFIG_BACKUP = `${config.get('DATA_PATH')}/sshconfig/`;
 const TEMPLATE_PATH = `${config.get('BASE_PATH')}/templates/`;
 
 // Convert request objects to JSON strings for creating template results
+// This is used by handlebars to convert json data to strings in some cases
 handlebars.registerHelper('json', function(obj) {
   return JSON.stringify(obj);
 });
@@ -58,6 +61,7 @@ const init = function() {
 
 // Create kubeconfig file. One file per cluster is created and clustername is filename.
 // The file is used by multiple operators - Ex. config as well as connect.
+// TODO: kubeconfig implementation
 const saveAnthosConfig = async function(req, res) {
   if (req.body.credoption === 'token') {
     try {
@@ -200,6 +204,7 @@ const initializeGitRepo = async function(req) {
         .catch((err) => reject(err));
   });
 };
+
 
 // Commit and push the changes.
 // ToDo: There is a problem with this peice, it needs to behave differently based on if the remote 
