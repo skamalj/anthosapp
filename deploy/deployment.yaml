@@ -44,7 +44,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: phlox
-          image: "gcr.io/wipro-gcp-parsnet-poc/anthos-app"
+          image: "gcr.io/gcdeveloper/anthos-app"
           imagePullPolicy: Always
           resources:
             requests:

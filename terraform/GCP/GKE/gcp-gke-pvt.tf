@@ -1,18 +1,3 @@
-terraform {
-  required_providers {
-    google = {
-      source = "hashicorp/google"
-      version = "~> 3.10"
-    }
-  }
-}
-
-provider "google" {
-
-  project = "gcdeveloper"
-  region  = "us-central1"
-  zone    = "us-central1-c"
-}
 
 resource "google_compute_network" "vpc_network" {
   name = "my-private-gke-nw"
@@ -21,9 +6,9 @@ resource "google_compute_network" "vpc_network" {
 }
 
 resource "google_compute_subnetwork"  "primary_subnet" {
-    name = "subnet-us-central1-10-1"
+    name = format("subnet-%s-10-1", var.gcp_region)
     ip_cidr_range = "10.1.0.0/16"
-    region = "us-central1"
+    region = var.gcp_region
     network = google_compute_network.vpc_network.id
     secondary_ip_range = [ {
       ip_cidr_range = "10.2.0.0/16"
@@ -41,9 +26,8 @@ resource "google_service_account" "gke_default" {
 }
 
 resource "google_container_cluster" "private_cluster" {
-  count = 1
   name               = "gke-private"
-  location           = "us-central1-a"
+  location           = format("%s-a", var.gcp_region)
   default_max_pods_per_node = 40
   
   network = google_compute_network.vpc_network.name
@@ -65,7 +49,7 @@ resource "google_container_cluster" "private_cluster" {
   initial_node_count       = 1
   
   workload_identity_config {
-    identity_namespace = "gcdeveloper.svc.id.goog"
+    identity_namespace = format("%s.svc.id.goog", var.gcp_project)
   }
   
   ip_allocation_policy {
@@ -89,14 +73,14 @@ resource "google_container_cluster" "private_cluster" {
 }  
 
 resource "google_container_node_pool" "node_pool_1" {
-  count = 1
   name       = "node-pool-1"
-  location   = "us-central1-a"
-  cluster    = google_container_cluster.private_cluster[0].name
+  location   = format("%s-a", var.gcp_region)
+  cluster    = google_container_cluster.private_cluster.name
   max_pods_per_node = 40
+  initial_node_count = 2
 
   autoscaling {
-      min_node_count = 3
+      min_node_count = 2
       max_node_count = 6
   }
 
@@ -109,4 +93,8 @@ resource "google_container_node_pool" "node_pool_1" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
+}
+
+output "cluster_endpoint" {
+  value = google_container_cluster.private_cluster.endpoint
 }
