@@ -4,3 +4,5 @@ variable "eks-vpc" {
       cidr_block = string
   })
 }
+
+variable "eks-private-route-table" {}

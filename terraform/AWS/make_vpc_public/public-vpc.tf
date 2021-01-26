@@ -53,17 +53,9 @@ resource "aws_route_table_association" "public-subnets-route-table" {
   route_table_id = aws_route_table.public-route-table.id
 }
 
-# Create route table with route to NAT Gateway
-resource "aws_route_table" "private-route-table" {
-  vpc_id = var.eks-vpc.id
-
-  route  {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat-gw.id
-  }
+# Create route to NAT Gateway for private subnets
+resource "aws_route" "private-natgw-route" {
+  route_table_id = var.eks-private-route-table.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.nat-gw.id
 }  
-
-# Output private route table, which can be associated with private subnets
-output "private-route-table" {
-    value = aws_route_table.private-route-table
-}

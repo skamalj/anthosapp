@@ -1,0 +1,1 @@
+variable "eks-oidc-provider" {}
