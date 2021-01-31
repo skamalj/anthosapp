@@ -2,8 +2,12 @@ output "eks-vpc" {
   value = aws_vpc.eks-vpc
 }
 
-output "eks-subnets" {
-  value = aws_subnet.eks-subnets
+output "eks-nodes-subnets" {
+  value = aws_subnet.eks-nodes-subnets
+}
+
+output "eks-internal-elb-subnets" {
+  value = aws_subnet.eks-internal-elb-subnets
 }
 
 output "private-route-table" {

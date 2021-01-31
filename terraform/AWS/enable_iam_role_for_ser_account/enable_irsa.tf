@@ -43,3 +43,67 @@ resource "aws_iam_role_policy_attachment" "my-sa-role-attach" {
 }
 
 ### Sample role attached to my-serviceaccount in EKS, you still need to create role and rolebinding ###
+
+# Below is an example of how to attach "my-serviceaccount" in EKS to 
+# "my-eks-sa-role" in IAM
+data "aws_iam_policy_document" "cwagent-assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks-oidc-provider.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks-oidc-provider.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+resource "aws_iam_role" "eks-cwagent-sa-role" {
+  assume_role_policy = data.aws_iam_policy_document.cwagent-assume-role-policy.json
+  name               = "eks-cwagent-sa-role"
+}
+
+resource "aws_iam_role_policy_attachment" "eks-cwagent-sa-role-attach" {
+  role       = aws_iam_role.eks-cwagent-sa-role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+### Attach IAM role with cwagent sercviceaccount ###
+
+# Below is an example of how to attach "my-serviceaccount" in EKS to 
+# "my-eks-sa-role" in IAM
+data "aws_iam_policy_document" "fluentbit-assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks-oidc-provider.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:amazon-cloudwatch:fluent-bit"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks-oidc-provider.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+resource "aws_iam_role" "eks-fluentbit-sa-role" {
+  assume_role_policy = data.aws_iam_policy_document.fluentbit-assume-role-policy.json
+  name               = "eks-fluentbit-sa-role"
+}
+
+resource "aws_iam_role_policy_attachment" "eks-fluentbit-sa-role-attach" {
+  role       = aws_iam_role.eks-fluentbit-sa-role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+### Attach IAM role with cwagent sercviceaccount ###

@@ -18,15 +18,16 @@ resource "aws_eip" "nat-ip" {
 
 # Create public subnets 
 resource "aws_subnet" "eks-public-subnets" {
-  count = 2
+  count = 3
 
   availability_zone = data.aws_availability_zones.available.names[count.index]
-  cidr_block        = cidrsubnet(var.eks-vpc.cidr_block, 4, count.index+2)
+  cidr_block        = cidrsubnet(var.eks-vpc.cidr_block, 4, count.index+3)
   vpc_id            = var.eks-vpc.id
   map_public_ip_on_launch = true
 
   tags = {
-    "kubernetes.io/cluster/eks-private-cluster" = "shared"
+    "kubernetes.io/cluster/eks-private-cluster" = "shared",
+    "kubernetes.io/role/elb" = "1"
   }
 }
 

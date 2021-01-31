@@ -7,7 +7,7 @@ module "eks-iam-roles" {
 module "eks-vpc" {
   source = "./create_vpc"
 
-  cidr_block = "10.2.0.0/16"
+  cidr_block = "10.1.0.0/16"
 }
 
 # Update VPC wuth public subnets , NAT gateway and IGW
@@ -25,7 +25,8 @@ resource "aws_eks_cluster" "eks-private-cluster" {
   role_arn = module.eks-iam-roles.eks-cluster-role.arn
 
   vpc_config {
-    subnet_ids = module.eks-vpc.eks-subnets[*].id
+    subnet_ids = concat(module.eks-vpc.eks-internal-elb-subnets[*].id,
+                module.eks-vpc.eks-nodes-subnets[*].id)
     endpoint_private_access = true
     endpoint_public_access = true
     public_access_cidrs = [
@@ -35,7 +36,7 @@ resource "aws_eks_cluster" "eks-private-cluster" {
   
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
   # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
-  depends_on = [ module.eks-iam-roles ]
+  depends_on = [ module.eks-iam-roles, module.eks-vpc ]
 }
 
 # Create Nodegroup. Nodes are created only in private subnets
@@ -43,7 +44,7 @@ resource "aws_eks_node_group" "eks-node-group-1" {
   cluster_name    = aws_eks_cluster.eks-private-cluster.name
   node_group_name = "eks-nodegroup-1"
   node_role_arn   = module.eks-iam-roles.eks-node-group-role.arn
-  subnet_ids      = module.eks-vpc.eks-subnets[*].id
+  subnet_ids      = module.eks-vpc.eks-nodes-subnets[*].id
   instance_types = ["m5.large"]
 
   scaling_config {
