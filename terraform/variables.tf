@@ -60,3 +60,9 @@ variable "kubeadm" {
   default = "N"
   description = "Creates DIY cluster using kubeadm"
 }
+
+variable "eks" {
+  type =  string
+  default = "N"
+  description = "Creates GKE cluster"
+}

@@ -7,13 +7,13 @@ output "cluster_endpoint_kubeadm" {
 }
 
 output "eks-endpoint" {
-  value = module.aws-eks.eks-endpoint
+  value = module.aws-eks[*].eks-endpoint
 }
 
 output "eks-oidc-provider-url" {
-  value = module.aws-eks.eks-oidc-provider-url
+  value = module.aws-eks[*].eks-oidc-provider-url
 }
 
 output "autoscalar-iam-role-arn" {
-  value = module.aws-eks.autoscalar-iam-role-arn
+  value = module.aws-eks[*].autoscalar-iam-role-arn
 }

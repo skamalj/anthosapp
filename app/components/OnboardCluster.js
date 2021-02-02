@@ -31,19 +31,24 @@ Vue.component('DeployOperator',
                 window.alert(err);
               });
         },
-        getClusterList() {
+        getRepoClusterList() {
           const vueObj = this;
           axios.post('/getRepoClusterMapping').then(function(resp) {
-            vueObj.clusterrepolist = resp.data;
-            vueObj.clusterlist = resp.data.map(c => c.clustername);
+            vueObj.clusterrepolist = resp.data;            
           })
               .catch(function(err) {
                 window.alert(err);
               });
         },
-      },
-      created: function() {
-        this.getClusterList();
+        getClusterList() {
+          const vueObj = this;
+          axios.post('/getClusterList').then(function(resp) {
+            vueObj.clusterlist = resp.data.map(c => c.name);
+          })
+              .catch(function(err) {
+                window.alert(err);
+              });
+        },
       },
       watch: {
         repoName: function(val) {
@@ -52,6 +57,7 @@ Vue.component('DeployOperator',
       },
       created: function() {
         this.getClusterList();
+        this.getRepoClusterList();
       },
       template: ` \
         <div class="container m-0 p-0"> \

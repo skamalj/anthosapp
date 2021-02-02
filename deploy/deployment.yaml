@@ -44,7 +44,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: phlox
-          image: "gcr.io/gcdeveloper/anthos-app"
+          image: "gcr.io/gcdeveloper/anthos-app:latest"
           imagePullPolicy: Always
           resources:
             requests:

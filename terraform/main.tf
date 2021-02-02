@@ -48,5 +48,6 @@ module "gcp-anthos-kubeadm" {
 }
 
 module "aws-eks" {
+  count = var.eks == "Y" ? 1 : 0
   source = "./AWS"
 }
