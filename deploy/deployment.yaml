@@ -13,6 +13,14 @@ spec:
       port: 8080
       targetPort: 3000
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: connect-sa@gcdeveloper.iam.gserviceaccount.com
+  name: connect-sa
+  namespace: anthosapp
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
