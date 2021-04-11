@@ -11,5 +11,5 @@ steps:
   - --filename=deploy/deployment.yaml
   - --image=gcr.io/$PROJECT_ID/anthos-app
   - --location=us-central1-a
-  - --cluster=gke-pvt
+  - --cluster=gke-private
   - --namespace=anthosapp
